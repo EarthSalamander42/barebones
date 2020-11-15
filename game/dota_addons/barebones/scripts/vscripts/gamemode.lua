@@ -1,5 +1,5 @@
 -- This is the primary barebones gamemode script and should be used to assist in initializing your game mode
-BAREBONES_VERSION = "2.0.10"
+BAREBONES_VERSION = "2.0.11"
 
 -- Selection library (by Noya) provides player selection inspection and management from server lua
 require('libraries/selection')
@@ -51,7 +51,7 @@ function barebones:OnAllPlayersLoaded()
     for playerID = 0, DOTA_MAX_TEAM_PLAYERS-1 do
       if PlayerResource:IsValidPlayerID(playerID) then
         -- If this player still hasn't picked a hero, random one
-        -- PlayerResource:IsConnected(index) is custom-made; can be found in 'player_resource.lua' library
+        -- PlayerResource:IsConnected(index) is custom-made! Can be found in 'player_resource.lua' library
         if not PlayerResource:HasSelectedHero(playerID) and PlayerResource:IsConnected(playerID) and not PlayerResource:IsBroadcaster(playerID) then
           PlayerResource:GetPlayer(playerID):MakeRandomHeroSelection() -- this will cause an error if player is disconnected, that's why we check if player is connected
           PlayerResource:SetHasRandomed(playerID)
@@ -83,9 +83,9 @@ function barebones:InitGameMode()
 	GameRules:SetUseUniversalShopMode(UNIVERSAL_SHOP_MODE)
 	GameRules:SetHeroRespawnEnabled(ENABLE_HERO_RESPAWN)
 
-	GameRules:SetHeroSelectionTime(HERO_SELECTION_TIME) --THIS IS IGNORED when "EnablePickRules" is "1" in 'addoninfo.txt' !
+	GameRules:SetHeroSelectionTime(HERO_SELECTION_TIME) -- THIS IS IGNORED when "EnablePickRules" is "1" in 'addoninfo.txt' !
 	GameRules:SetHeroSelectPenaltyTime(HERO_SELECTION_PENALTY_TIME)
-	
+
 	GameRules:SetPreGameTime(PRE_GAME_TIME)
 	GameRules:SetPostGameTime(POST_GAME_TIME)
 	GameRules:SetShowcaseTime(SHOWCASE_TIME)
@@ -116,7 +116,7 @@ function barebones:InitGameMode()
 	if USE_AUTOMATIC_PLAYERS_PER_TEAM then
 		local num = math.floor(10/MAX_NUMBER_OF_TEAMS)
 		local count = 0
-		for team,number in pairs(TEAM_COLORS) do
+		for team, number in pairs(TEAM_COLORS) do
 			if count >= MAX_NUMBER_OF_TEAMS then
 				GameRules:SetCustomGameTeamMaxPlayers(team, 0)
 			else
@@ -126,7 +126,7 @@ function barebones:InitGameMode()
 		end
 	else
 		local count = 0
-		for team,number in pairs(CUSTOM_TEAM_PLAYER_COUNT) do
+		for team, number in pairs(CUSTOM_TEAM_PLAYER_COUNT) do
 			if count >= MAX_NUMBER_OF_TEAMS then
 				GameRules:SetCustomGameTeamMaxPlayers(team, 0)
 			else
@@ -137,7 +137,7 @@ function barebones:InitGameMode()
 	end
 
 	if USE_CUSTOM_TEAM_COLORS then
-		for team,color in pairs(TEAM_COLORS) do
+		for team, color in pairs(TEAM_COLORS) do
 			SetTeamCustomHealthbarColor(team, color[1], color[2], color[3])
 		end
 	end
@@ -145,6 +145,7 @@ function barebones:InitGameMode()
 	DebugPrint("[BAREBONES] Done with setting Game Rules.")
 
 	-- Event Hooks / Listeners
+	DebugPrint("[BAREBONES] Setting Event Hooks / Listeners.")
 	ListenToGameEvent('dota_player_gained_level', Dynamic_Wrap(barebones, 'OnPlayerLevelUp'), self)
 	ListenToGameEvent('dota_player_learned_ability', Dynamic_Wrap(barebones, 'OnPlayerLearnedAbility'), self)
 	ListenToGameEvent('entity_killed', Dynamic_Wrap(barebones, 'OnEntityKilled'), self)
@@ -170,7 +171,7 @@ function barebones:InitGameMode()
 	local timeTxt = string.gsub(string.gsub(GetSystemTime(), ':', ''), '0','')
 	math.randomseed(tonumber(timeTxt))
 
-	DebugPrint("[BAREBONES] Setting filters.")
+	DebugPrint("[BAREBONES] Setting Filters.")
 
 	local gamemode = GameRules:GetGameModeEntity()
 
@@ -216,14 +217,14 @@ end
 -- This function is called as the first player loads and sets up the game mode parameters
 function barebones:CaptureGameMode()
 	local gamemode = GameRules:GetGameModeEntity()
-	
+
 	-- Set GameMode parameters
 	gamemode:SetRecommendedItemsDisabled(RECOMMENDED_BUILDS_DISABLED)
 	gamemode:SetCameraDistanceOverride(CAMERA_DISTANCE_OVERRIDE)
 	gamemode:SetBuybackEnabled(BUYBACK_ENABLED)
 	gamemode:SetCustomBuybackCostEnabled(CUSTOM_BUYBACK_COST_ENABLED)
 	gamemode:SetCustomBuybackCooldownEnabled(CUSTOM_BUYBACK_COOLDOWN_ENABLED)
-	gamemode:SetTopBarTeamValuesOverride(USE_CUSTOM_TOP_BAR_VALUES)
+	gamemode:SetTopBarTeamValuesOverride(USE_CUSTOM_TOP_BAR_VALUES) -- Probably does nothing, but I will leave it
 	gamemode:SetTopBarTeamValuesVisible(TOP_BAR_VISIBLE)
 
 	if USE_CUSTOM_XP_VALUES then
@@ -236,11 +237,12 @@ function barebones:CaptureGameMode()
 
 	gamemode:SetFogOfWarDisabled(DISABLE_FOG_OF_WAR_ENTIRELY)
 	gamemode:SetGoldSoundDisabled(DISABLE_GOLD_SOUNDS)
-	--gamemode:SetRemoveIllusionsOnDeath(REMOVE_ILLUSIONS_ON_DEATH)
+	--gamemode:SetRemoveIllusionsOnDeath(REMOVE_ILLUSIONS_ON_DEATH) -- Didnt work last time I tried
 
 	gamemode:SetAlwaysShowPlayerInventory(SHOW_ONLY_PLAYER_INVENTORY)
 	--gamemode:SetAlwaysShowPlayerNames(true) -- use this when you need to hide real hero names
 	gamemode:SetAnnouncerDisabled(DISABLE_ANNOUNCER)
+
 	if FORCE_PICKED_HERO ~= nil then
 		gamemode:SetCustomGameForceHero(FORCE_PICKED_HERO) -- THIS WILL NOT WORK when "EnablePickRules" is "1" in 'addoninfo.txt' !
 	else
@@ -248,8 +250,10 @@ function barebones:CaptureGameMode()
 		gamemode:SetDraftingBanningTimeOverride(0)
 		if ENABLE_BANNING_PHASE then
 			gamemode:SetDraftingBanningTimeOverride(BANNING_PHASE_TIME)
+			gamemode:SetCustomGameBansPerTeam(5) -- New, I don't know how it works yet
 		end
 	end
+
 	--gamemode:SetFixedRespawnTime(FIXED_RESPAWN_TIME) -- FIXED_RESPAWN_TIME should be float
 	gamemode:SetFountainConstantManaRegen(FOUNTAIN_CONSTANT_MANA_REGEN)
 	gamemode:SetFountainPercentageHealthRegen(FOUNTAIN_PERCENTAGE_HEALTH_REGEN)
@@ -262,7 +266,7 @@ function barebones:CaptureGameMode()
 	if USE_DEFAULT_RUNE_SYSTEM then
 		gamemode:SetUseDefaultDOTARuneSpawnLogic(true)
 	else
-		-- Most runes are broken by Valve, RuneSpawnFilter also doesn't work
+		-- Some runes are broken by Valve, RuneSpawnFilter also didn't work last time I tried
 		for rune, spawn in pairs(ENABLED_RUNES) do
 			gamemode:SetRuneEnabled(rune, spawn)
 		end

@@ -1,9 +1,7 @@
 "DOTAAbilities"
 {
-  "Version"   "1"
-
   // -----------------------------------------------------------
-  // - REMOVE ANY ITEM YOU DON'T WANT TO APPEAR IN THE SHOP -
+  // - REMOVE ANY ITEM YOU DON'T WANT TO BE BUYABLE IN THE SHOP -
   // -----------------------------------------------------------
   
   //"item_blink"                    "REMOVE"
@@ -247,6 +245,23 @@
   //"item_tome_of_knowledge"        "REMOVE"
   //"item_recipe_hurricane_pike"    "REMOVE"
   //"item_hurricane_pike"           "REMOVE"
+  
+  //"item_recipe_aeon_disk"         "REMOVE"
+  //"item_aeon_disk"                "REMOVE"
+  //"item_recipe_holy_locket"       "REMOVE"
+  //"item_holy_locket"              "REMOVE"
+  //"item_recipe_kaya"              "REMOVE"
+  //"item_kaya"                     "REMOVE"
+  //"item_recipe_kaya_and_sange"    "REMOVE"
+  //"item_kaya_and_sange"           "REMOVE"
+  //"item_recipe_meteor_hammer"     "REMOVE"
+  //"item_meteor_hammer"            "REMOVE"
+  //"item_recipe_nullifier"         "REMOVE"
+  //"item_nullifier"                "REMOVE"
+  //"item_recipe_spirit_vessel"     "REMOVE"
+  //"item_spirit_vessel"            "REMOVE"
+  //"item_recipe_yasha_and_kaya"    "REMOVE"
+  //"item_yasha_and_kaya"           "REMOVE"
 
   // Neutral items
   //"item_keen_optic"               "REMOVE"

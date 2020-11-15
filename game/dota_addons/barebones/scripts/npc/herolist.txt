@@ -1,4 +1,7 @@
-"CustomHeroList"
+// <key>	<value>
+// Hero		currently on/off
+
+"whitelist" // put CustomHeroList if it doesnt work
 {
 	"npc_dota_hero_alchemist" 			"1"
 	"npc_dota_hero_ancient_apparition" 	"1"

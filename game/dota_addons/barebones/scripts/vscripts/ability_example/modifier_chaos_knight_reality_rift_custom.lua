@@ -1,6 +1,4 @@
-if modifier_chaos_knight_reality_rift_custom == nil then
-	modifier_chaos_knight_reality_rift_custom = class({})
-end
+modifier_chaos_knight_reality_rift_custom = modifier_chaos_knight_reality_rift_custom or class({})
 
 function modifier_chaos_knight_reality_rift_custom:IsHidden()
 	return false
@@ -14,6 +12,7 @@ function modifier_chaos_knight_reality_rift_custom:IsDebuff()
 	return true
 end
 
+-- Modifiers exist both on server and client, so take care what methods you use
 function modifier_chaos_knight_reality_rift_custom:OnCreated()
 	local ability = self:GetAbility()
 	local caster = ability:GetCaster()
@@ -48,4 +47,8 @@ end
 
 function modifier_chaos_knight_reality_rift_custom:GetEffectAttachType()
 	return PATTACH_OVERHEAD_FOLLOW
+end
+
+function modifier_chaos_knight_reality_rift_custom:ShouldUseOverheadOffset()
+	return true
 end

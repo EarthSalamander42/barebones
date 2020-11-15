@@ -5,7 +5,6 @@
 	//=================================================================================================================
 	"chaos_knight_reality_rift_barebones"
 	{
-		"ID"							"85427"
 		"BaseClass"						"ability_lua"
 		"ScriptFile"                	"ability_example/chaos_knight_reality_rift.lua"
 		"AbilityTextureName"			"chaos_knight_reality_rift"
@@ -53,13 +52,13 @@
 				"illusion_search_radius"	"1375"
 			}
 
-			"04" 	// 30% of the distance between
+			"04" // 30% of the distance between
 			{
 				"var_type"					"FIELD_FLOAT"
 				"min_range"					"0.3"
 			}
 
-			"05"	// 80% of the distance between
+			"05" // 80% of the distance between
 			{
 				"var_type"					"FIELD_FLOAT"
 				"max_range"					"0.8"

@@ -1,179 +1,48 @@
-"Creature.FireBreath.Cast"
-{
-	"operator_stacks"
-	{
-		"update_stack"
-		{
-			"reference_operator"
-			{
-				"operator"		"sos_reference_stack"
-				"reference_stack"		"dota_update_default"
-				"operator_variables"
-				{
-					"vsnd_files"
-					{
-						"value"
-						{
-							"value0"		"sounds/mini_rosh_firebreath.vsnd"
-						}
-					}
-					"volume_min"
-					{
-						"value"		"1.000000"
-					}
-					"volume_max"
-					{
-						"value"		"1.000000"
-					}
-					"pitch_min"
-					{
-						"value"		"0.950000"
-					}
-					"pitch_max"
-					{
-						"value"		"1.050000"
-					}
-					"chan_type"
-					{
-						"value"		"6"
-					}
-					"memory_type"
-					{
-						"value"		"0"
-					}
-					"soundlevel_min"
-					{
-						"value"		"90.000000"
-					}
-					"soundlevel_max"
-					{
-						"value"		"90.000000"
-					}
-				}
-			}
-		}
-	}
-}
 
-"Reflex.Midnight_Pulse"
-{
-	"operator_stacks"
-	{
-		"update_stack"
-		{
-			"reference_operator"
-			{
-				"operator"		"sos_reference_stack"
-				"reference_stack"		"dota_update_default"
-				"operator_variables"
-				{
-					"vsnd_files"
-					{
-						"value"
-						{
-							"value0"		"sounds/weapons/hero/enigma/midnight_pulse.vsnd"
-						}
-					}
-					"volume_min"
-					{
-						"value"		"1.000000"
-					}
-					"volume_max"
-					{
-						"value"		"1.000000"
-					}
-					"pitch_min"
-					{
-						"value"		"1.000000"
-					}
-					"pitch_max"
-					{
-						"value"		"1.000000"
-					}
-					"chan_type"
-					{
-						"value"		"6"
-					}
-					"memory_type"
-					{
-						"value"		"0"
-					}
-					"soundlevel_min"
-					{
-						"value"		"81.000000"
-					}
-					"soundlevel_max"
-					{
-						"value"		"81.000000"
-					}
-					"mixgroup"
-					{
-						"value"		"Weapons"
-					}
-					"spread_radius"
-					{
-						"value"		"600.000000"
-					}
-				}
-			}
-		}
-	}
-}
+  Creature.Whoosh = {
+    type = "dota_src1_3d"
+    vsnd_files =
+    [
+      "sounds/weapons/hero/shared/small_blade/whoosh01.vsnd",
+      "sounds/weapons/hero/shared/small_blade/whoosh02.vsnd",
+      "sounds/weapons/hero/shared/small_blade/whoosh03.vsnd",
+      "sounds/weapons/hero/shared/small_blade/whoosh04.vsnd",
+    ]
+    volume = "1.400000"
+    pitch_rand_min = "0"
+    pitch_rand_max = "0.030000"
+    pitch = "0.300000"
+    soundlevel = "100.000000"
+    distance_max = "1600.000000"
+    mixgroup = "Weapons"
+  }
 
-
-"Start"
-{
-	"operator_stacks"
-	{
-		"update_stack"
-		{
-			"update_operator"
-			{
-				"operator"		"sos_reference_stack"
-				"reference_stack"		"src1_3d"
-				"operator_variables"
-				{
-					"vsnd_files"
-					{
-						"value"
-						{
-							"value0"		"sounds/start.vsnd"
-						}
-					}
-					"volume_min"
-					{
-						"value"		"1.000000"
-					}
-					"volume_max"
-					{
-						"value"		"1.000000"
-					}
-					"pitch_min"
-					{
-						"value"		"0.950000"
-					}
-					"pitch_max"
-					{
-						"value"		"1.050000"
-					}
-					"chan_type"
-					{
-						"value"		"6"
-					}
-					"memory_type"
-					{
-						"value"		"0"
-					}
-					"soundlevel_min"
-					{
-						"value"		"90.000000"
-					}
-					"soundlevel_max"
-					{
-						"value"		"90.000000"
-					}
-				}
-			}
-		}
-	}
-}
+  Creature.Lotus = {
+    type = "dota_update_default"
+    vsnd_files =
+    [
+      "sounds/items/lotus_cast.vsnd"
+    ]
+    volume = "0.400000"
+    pitch_rand_min = "0"
+    pitch_rand_max = "0.030000"
+    pitch = "2.400000"
+    soundlevel = "100.000000"
+    distance_max = "1600.000000"
+    mixgroup = "Weapons"
+  }
+  
+  Creature.FireBreath.Cast = {
+    type = "dota_update_default"
+	vsnd_files =
+	[
+		"sounds/mini_rosh_firebreath.vsnd"
+	]
+	volume = "1.000000"
+	pitch_rand_min = "0.950000"
+    pitch_rand_max = "1.050000"
+	soundlevel = "90.000000"
+	distance_max = "1600.000000"
+	event_type = "6.000000"
+	mixgroup = "Ultimates"
+  }

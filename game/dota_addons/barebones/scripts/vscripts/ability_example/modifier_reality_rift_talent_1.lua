@@ -1,6 +1,4 @@
-if modifier_reality_rift_talent_1 == nil then
-	modifier_reality_rift_talent_1 = class({})
-end
+modifier_reality_rift_talent_1 = modifier_reality_rift_talent_1 or class({})
 
 function modifier_reality_rift_talent_1:IsHidden()
     return true

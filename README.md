@@ -6,11 +6,11 @@ BMDdota made most libraries.
 
 If you have some questions for me, contact me on ModDota discord or through mail: darko1290@gmail.com.
 
-### Version 2.0.10.
+### Version 2.0.11.
 
 ## Introduction
-Barebones is meant to be a jumping off point for creating a mod with all the basic stuff taken care of for you.
-Barebones sets up the necessary files to create a basic mod (from a scripting persective), allowing you to simply find the places to put your Lua logic in order for you mod to operate.
+Barebones is meant to be a jumping off point for creating a custom game with all the basic stuff taken care of for you.
+Barebones sets up the necessary files to create a basic custom game (from a scripting persective), allowing you to simply find the places to put your Lua logic in order for you custom game to operate.
 Barebones currently provides limited examples for performing different tasks, and limited examples for unit/ability/item creation.
 Barebones divides scripts up into several sections: Core Files, Libraries and Examples.
 
@@ -18,10 +18,10 @@ Barebones divides scripts up into several sections: Core Files, Libraries and Ex
 Barebones can be installed by downloading this git repository and ensuring that you merge the "content" and "game" folder from this repo with your own "content" and "game" folders.  These should be located in your "<SteamLibraryDirectory>\SteamApps\common\dota 2 beta\" folder.
 
 ## Core Files
-Core Files are the primary files which you should modify in order to get your basic game mode up and running.  There are 4 major files:
+Core Files are the primary files which you should modify in order to get your basic game mode up and running. There are 4 major files:
 
 #### settings.lua
-This file contains many special settings/properties created for barebones that allows you to define the high-level behavior of your game mode.
+This file contains many special settings/properties that allows you to define the high-level behavior of your game mode.
 You can define things like respawn times, number of teams on the map etc.  Each property is commented to help you understand it.
 
 #### addon_game_mode.lua
@@ -32,7 +32,7 @@ This is the primary barebones gamemode script and should be used to assist in in
 This file contains helpful pseudo-event functions prepared for you for frequently needed initialization actions.
 
 #### events.lua
-This file contains a hooked version of almost every event that is currently known to fire in the DotA 2 Lua vscript code.
+This file contains a hooked version of most useful events that are fired by DotA 2 Engine.
 You can drop your event functions in there to have your game mode react to events.
 
 ## Libraries
@@ -50,7 +50,7 @@ This library can be used for advanced 3D projectile systems.
 See [ProjectilesReadme.md](https://github.com/bmddota/barebones/blob/source2/ProjectilesReadme.md) for more information.
 
 #### notifications.lua [by BMDdota](https://github.com/bmddota)
-This library can be used to send panorama notifications to individuals/teams/everyone in your game.  
+This library can be used to send panorama notifications to players/teams/everyone in your game.  
 See [libraries/notifications.lua](https://github.com/bmddota/barebones/blob/source2/game/dota_addons/barebones/scripts/vscripts/libraries/notifications.lua) for usage details and examples.
 
 #### animations.lua [by BMDdota](https://github.com/bmddota)
@@ -76,16 +76,12 @@ This version of Barebones now only prints out (spams) debugging information when
 
 ## Additional Information
 - Barebones also comes with a sample loading screen implementation in panorama which you can view and edit via the content panorama directory.
-- You can change the name of the multiteams used at the Game Setup screen by editing the game/barebones/panorama/localization/addon_english.txt file.
-- You can adjust the number of players allowed on each of your maps by editing both addoninfo.txt. and settings.lua
+- You can change the name of the multiteams used at the Game Setup screen by editing addon_english.txt file.
+- You can adjust the number of players allowed on each of your maps by editing both addoninfo.txt (lobby) and settings.lua (in-game).
 - For making custom buildings use: https://github.com/MNoya/BuildingHelper
-- DOTA 2 Scripting API both on Server and on Client side (maintained by ark120202): https://dota.tools/vscripts/
+- DOTA 2 Scripting API on Server and Client (maintained by ark120202): https://dota.tools/vscripts/
 - Official Dota 2 Scripting API: https://developer.valvesoftware.com/wiki/Dota_2_Workshop_Tools/Scripting/API
 - ModDota Dota 2 Scripting API (maintained by Sinz) http://docs.moddota.com/
 - Dota 2 custom game template with TypeScript Panorama and Scripts: https://github.com/ModDota/TypeScriptAddonTemplate
 
-## TO DO:
-- Add attributes library.
-- Add max movement speed configuration.
-
-If you have any questions or concerns, contact me on ModDota discord or via mail (darko1290@gmail.com).
+If you have any questions or concerns, contact me on ModDota discord (@Darkonius) or via mail (darko1290@gmail.com).

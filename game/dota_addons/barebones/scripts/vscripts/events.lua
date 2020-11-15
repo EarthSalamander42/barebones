@@ -1,5 +1,5 @@
 -- This file contains all barebones-registered events and has already set up the passed-in parameters for you to use.
--- You should comment or remove the stuff you don't need
+-- You should comment or remove the stuff you don't need!
 
 -- Handle stuff when a player disconnects
 function barebones:OnDisconnect(keys)
@@ -33,6 +33,7 @@ function barebones:OnGameRulesStateChange(keys)
 		DebugPrint("[BAREBONES] Game State changed to: DOTA_GAMERULES_STATE_HERO_SELECTION")
 		self:PostLoadPrecache()
 		self:OnAllPlayersLoaded()
+
 	elseif new_state == DOTA_GAMERULES_STATE_STRATEGY_TIME then
 		DebugPrint("[BAREBONES] Game State changed to: DOTA_GAMERULES_STATE_STRATEGY_TIME")
 
@@ -44,6 +45,7 @@ function barebones:OnGameRulesStateChange(keys)
 
 	elseif new_state == DOTA_GAMERULES_STATE_PRE_GAME then
 		DebugPrint("[BAREBONES] Game State changed to: DOTA_GAMERULES_STATE_PRE_GAME")
+		GameRules:GetGameModeEntity():SetCustomDireScore(0) -- Thanks for Diretide
 
 	elseif new_state == DOTA_GAMERULES_STATE_GAME_IN_PROGRESS then
 		DebugPrint("[BAREBONES] Game State changed to: DOTA_GAMERULES_STATE_GAME_IN_PROGRESS")
@@ -60,7 +62,7 @@ end
 
 -- An NPC has spawned somewhere in game. This includes heroes
 function barebones:OnNPCSpawned(keys)
-	DebugPrint("[BAREBONES] A unit Spawned")
+	--DebugPrint("[BAREBONES] A unit Spawned")
 	--PrintTable(keys)
 
 	local npc = EntIndexToHScript(keys.entindex)
@@ -113,12 +115,20 @@ function barebones:OnHeroInGame(hero)
 				DebugPrint("[BAREBONES] PlayerResource's PlayerData for playerID "..playerID.." was not properly initialized.")
 			end
 			if hero:IsClone() then
-				DebugPrint("[BAREBONES] Spawned hero is a clone (for example: meepo clone or monkey king ult clone)")
+				DebugPrint("[BAREBONES] Spawned hero is a Meepo clone")
+				return
+			end
+			if hero:IsTempestDouble() then
+				DebugPrint("[BAREBONES] Spawned hero is a Tempest Double")
+				return
+			end
+			if hero:HasModifier("modifier_monkey_king_fur_army_soldier_hidden") then
+				DebugPrint("[BAREBONES] Spawned hero is a Monkey King clone")
+				return
 			end
 			-- Set some hero stuff on first spawn or on every spawn (custom or not)
 			if PlayerResource.PlayerData[playerID].already_set_hero == true then
-				-- This is happening only when players create new heroes with custom hero-create spells:
-				-- Custom Illusion spells
+				-- This is happening only when players create new heroes or replace them
 			else
 				-- This is happening for players when their primary hero spawns for the first time
 				DebugPrint("[BAREBONES] Hero "..hero:GetUnitName().." spawned in the game for the first time for the player with ID "..playerID)
@@ -127,9 +137,10 @@ function barebones:OnHeroInGame(hero)
 				hero:MakeVisibleToTeam(DOTA_TEAM_GOODGUYS, 0.5)
 				hero:MakeVisibleToTeam(DOTA_TEAM_BADGUYS, 0.5)
 
-				-- Set the starting gold for the player's hero
-				-- If the NORMAL_START_GOLD is smaller then 600, remove Strategy Time and use SetGold
-				--PlayerResource:ModifyGold(playerID, NORMAL_START_GOLD-600, false, 0)
+				-- Set the starting gold for the player's hero 
+				-- Use 'PlayerResource:ModifyGold(playerID, NORMAL_START_GOLD-600, false, 0)' if GameRules:SetStartingGold breaks again
+				-- If the NORMAL_START_GOLD is less then 600, disable Strategy Time and use 'hero:SetGold(NORMAL_START_GOLD, false)' instead
+				-- Why? Because OnHeroInGame is triggering during PreGame (after Strategy Time) and players can buy items during Strategy Time (starting gold will remain default 600)
 
 				-- Create an item and add it to the player, effectively ensuring they start with the item
 				if ADD_ITEM_TO_HERO_ON_SPAWN then
@@ -221,6 +232,7 @@ function barebones:OnPlayerLearnedAbility(keys)
 
 	-- Handling talents without custom net tables, this is just an example
 	local talents = {
+		{"special_bonus_unique_hero_name", "modifier_hero_name_ability_name_talent_number"},
 		{"special_bonus_unique_chaos_knight", "modifier_reality_rift_talent_1"},
 		{"special_bonus_unique_chaos_knight_2", "modifier_reality_rift_talent_2"}
 	}
@@ -243,7 +255,7 @@ function barebones:OnPlayerLevelUp(keys)
 	--PrintTable(keys)
 
 	local level = keys.level
-	local playerID = keys.player_id or keys.PlayerID -- Valve keep changing this :)
+	local playerID = keys.player_id or keys.PlayerID -- Valve keeps changing this :)
 
 	local hero 
 	if keys.hero_entindex then
@@ -271,7 +283,7 @@ function barebones:OnPlayerLevelUp(keys)
 
 		-- Add a skill point when a hero levels up
 		if SKILL_POINTS_AT_EVERY_LEVEL then
-			local levels_without_ability_point = {17, 19, 21, 22, 23, 24}	-- on this levels you should get a skill point
+			local levels_without_ability_point = {17, 19, 21, 22, 23, 24}	-- on this levels you should get a skill point (edit this if needed)
 			for i = 1, #levels_without_ability_point do
 				if level == levels_without_ability_point[i] then
 					local unspent_ability_points = hero:GetAbilityPoints()
@@ -320,11 +332,11 @@ function barebones:OnRuneActivated(keys)
   local rune = keys.rune
 
   -- For Bounty Runes use BountyRuneFilter
-  -- For modifying which runes spawn use RuneSpawnFilter
+  -- For modifying which runes spawn use RuneSpawnFilter (if it works)
   -- This event can be used for adding more effects to existing runes.
 end
 
--- A player picked or randomed a hero (this is happening before OnHeroInGame because OnHeroInGame has a timers delay).
+-- A player picked or randomed a hero (this is sometimes happening before OnHeroInGame).
 function barebones:OnPlayerPickHero(keys)
 	DebugPrint("[BAREBONES] OnPlayerPickHero")
 	--PrintTable(keys)
@@ -343,7 +355,8 @@ function barebones:OnPlayerPickHero(keys)
 				DebugPrint("[BAREBONES] PlayerResource's PlayerData for playerID "..playerID.." was not properly initialized.")
 			end
 			if PlayerResource.PlayerData[playerID].already_assigned_hero == true then
-				-- This is happening only when players create new heroes with spells (Custom Illusion spells)
+				-- This is happening only when players create new heroes or replacing heroes
+				DebugPrint("[BAREBONES] Player with playerID "..playerID.." got a new hero "..hero_entity:GetUnitName())
 			else
 				PlayerResource:AssignHero(playerID, hero_entity)
 				PlayerResource.PlayerData[playerID].already_assigned_hero = true
@@ -354,7 +367,7 @@ end
 
 -- An entity died (an entity killed an entity)
 function barebones:OnEntityKilled(keys)
-    DebugPrint("[BAREBONES] An entity was killed.")
+    --DebugPrint("[BAREBONES] An entity was killed.")
     --PrintTable(keys)
 
     -- Indexes:
@@ -497,8 +510,10 @@ function barebones:OnEntityKilled(keys)
 
 		-- Setting top bar values
 		if SHOW_KILLS_ON_TOPBAR then
-			GameRules:GetGameModeEntity():SetTopBarTeamValue(DOTA_TEAM_BADGUYS, GetTeamHeroKills(DOTA_TEAM_BADGUYS))
-			GameRules:GetGameModeEntity():SetTopBarTeamValue(DOTA_TEAM_GOODGUYS, GetTeamHeroKills(DOTA_TEAM_GOODGUYS))
+			--GameRules:GetGameModeEntity():SetTopBarTeamValue(DOTA_TEAM_BADGUYS, GetTeamHeroKills(DOTA_TEAM_BADGUYS))   -- Doesn't work since Diretide
+			--GameRules:GetGameModeEntity():SetTopBarTeamValue(DOTA_TEAM_GOODGUYS, GetTeamHeroKills(DOTA_TEAM_GOODGUYS)) -- Doesn't work since Diretide
+			GameRules:GetGameModeEntity():SetCustomRadiantScore(GetTeamHeroKills(DOTA_TEAM_GOODGUYS))
+			GameRules:GetGameModeEntity():SetCustomDireScore(GetTeamHeroKills(DOTA_TEAM_BADGUYS))
 		end
 	end
 
@@ -567,7 +582,7 @@ end
 
 -- This function is called whenever an NPC reaches its goal position/target (npc can be a lane creep, goal entity can be a path corner)
 function barebones:OnNPCGoalReached(keys)
-	DebugPrint("[BAREBONES] OnNPCGoalReached")
+	--DebugPrint("[BAREBONES] OnNPCGoalReached")
 	--PrintTable(keys)
 
 	local goal_entity_index = keys.goal_entindex             -- Entity index of the next goal entity on the path (if any) which the npc will now be pathing towards

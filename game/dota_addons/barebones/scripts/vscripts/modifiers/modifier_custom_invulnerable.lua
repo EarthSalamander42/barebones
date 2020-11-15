@@ -1,6 +1,4 @@
-if modifier_custom_invulnerable == nil then
-	modifier_custom_invulnerable = class({})
-end
+modifier_custom_invulnerable = modifier_custom_invulnerable or class({})
 
 function modifier_custom_invulnerable:IsHidden()
     return true

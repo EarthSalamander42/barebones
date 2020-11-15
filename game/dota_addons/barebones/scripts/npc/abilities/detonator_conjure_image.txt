@@ -5,7 +5,6 @@
 	//=================================================================================================================
 	"detonator_conjure_image"
 	{
-		"ID"							"85620"
 		"BaseClass"						"ability_lua"
 		"ScriptFile"                	"ability_example/detonator_conjure_image.lua"
 		"AbilityTextureName"			"terrorblade_conjure_image"

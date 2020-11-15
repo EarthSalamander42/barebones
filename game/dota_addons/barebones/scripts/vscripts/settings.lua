@@ -13,7 +13,7 @@ ENABLE_BANNING_PHASE = false            -- Should we enable banning phase? Set t
 BANNING_PHASE_TIME = 20.0               -- How long should the banning phase last? This will work only if "EnablePickRules" is "1" in 'addoninfo.txt'
 STRATEGY_TIME = 20.0                    -- How long should strategy time last? Bug: You can buy items during strategy time and it will not be spent!
 SHOWCASE_TIME = 12.0                    -- How long should show case time be?
-PRE_GAME_TIME = 80.0                    -- How long after showcase time should the horn blow and the game start?
+PRE_GAME_TIME = 90.0                    -- How long after showcase time should the horn blow and the game start?
 POST_GAME_TIME = 60.0                   -- How long should we let people stay around before closing the server automatically?
 TREE_REGROW_TIME = 300.0                -- How long should it take individual trees to respawn after being cut down/destroyed?
 
