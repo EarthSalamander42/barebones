@@ -107,4 +107,4 @@ Projectiles are effectively a formatted lua table which is registered with the P
 
 **Examples:** 
 =============================
-See [examples/projectile.lua](https://github.com/bmddota/barebones/blob/source2/game/dota_addons/barebones/scripts/vscripts/examples/projectile.lua) for a projectile example.
+See [examples/projectile.lua](https://github.com/DarkoniusXNG/barebones/blob/source2/game/dota_addons/barebones/scripts/vscripts/examples/projectile.lua) for a projectile example.

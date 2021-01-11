@@ -336,7 +336,7 @@ function barebones:OnRuneActivated(keys)
   -- This event can be used for adding more effects to existing runes.
 end
 
--- A player picked or randomed a hero (this is sometimes happening before OnHeroInGame).
+-- A player picked or randomed a hero, it actually happens on spawn (this is sometimes happening before OnHeroInGame).
 function barebones:OnPlayerPickHero(keys)
 	DebugPrint("[BAREBONES] OnPlayerPickHero")
 	--PrintTable(keys)
