@@ -50,16 +50,25 @@ function barebones:OrderFilter(filter_table)
 	-- Example 1: If the order is an ability
 	if order == DOTA_UNIT_ORDER_CAST_POSITION or order == DOTA_UNIT_ORDER_CAST_TARGET or order == DOTA_UNIT_ORDER_CAST_NO_TARGET or order == DOTA_UNIT_ORDER_CAST_TOGGLE or order == DOTA_UNIT_ORDER_CAST_TOGGLE_AUTO then
 		local ability_index = filter_table.entindex_ability
-		local ability = EntIndexToHScript(ability_index)
-		local caster = EntIndexToHScript(units["0"])
+		local ability
+		if ability_index then
+			ability = EntIndexToHScript(ability_index)
+		end
+		local caster
+		if units and units["0"] then
+			caster = EntIndexToHScript(units["0"])
+		end
 	end
 
 	-- Example 2: If the order is a simple move command
-	if order == DOTA_UNIT_ORDER_MOVE_TO_POSITION and units["0"] then
-		local unit_with_order = EntIndexToHScript(units["0"])
+	if order == DOTA_UNIT_ORDER_MOVE_TO_POSITION and units then
 		local destination_x = filter_table.position_x
 		local destination_y = filter_table.position_y
-    end
+		local unit_with_order
+		if units["0"] then
+			unit_with_order = EntIndexToHScript(units["0"])
+		end
+	end
 	
 	-- Example 3: Disable item sharing for a custom courier that everyone can control
 	--[[
@@ -152,8 +161,6 @@ function barebones:ModifierFilter(keys)
 	local modifier_caster
 	if keys.entindex_caster_const then
 		modifier_caster = EntIndexToHScript(keys.entindex_caster_const)
-	else
-		modifier_caster = nil
 	end
 
 	return true
@@ -182,12 +189,12 @@ end
 function barebones:ProjectileFilter(keys)
 	--PrintTable(keys)
 
-	local can_be_dodged = keys.dodgeable				-- values: 1 for yes or 0 for no
-	local ability_index = keys.entindex_ability_const	-- value if not ability: -1
+	local can_be_dodged = keys.dodgeable                   -- values: 1 for yes, 0 for no
+	local ability_index = keys.entindex_ability_const      -- value if not ability: -1
 	local source_index = keys.entindex_source_const
 	local target_index = keys.entindex_target_const
 	local expire_time = keys.expire_time
-	local is_an_attack_projectile = keys.is_attack		-- values: 1 for yes or 0 for no
+	local is_an_attack_projectile = keys.is_attack         -- values: 1 for yes or 0 for no
 	local max_impact_time = keys.max_impact_time
 	local projectile_speed = keys.move_speed
 
@@ -313,19 +320,25 @@ function barebones:InventoryFilter(keys)
 
 	local unit_with_inventory
 	local unit_name
-	if unit_with_inventory_index ~= -1 then
+	if unit_with_inventory_index and unit_with_inventory_index ~= -1 then
 		unit_with_inventory = EntIndexToHScript(unit_with_inventory_index)
 		unit_name = unit_with_inventory:GetUnitName()
 	end
 
-	local item = EntIndexToHScript(item_index)
-	local item_name = item:GetName()
+	local item 
+	if item_index then
+		item = EntIndexToHScript(item_index)
+	end
+	local item_name
+	if item then
+		item_name = item:GetName()
+	end
 
 	local owner_of_this_item
-	if owner_index ~= -1 then
+	if owner_index and owner_index ~= -1 then
 		-- not reliable
 		owner_of_this_item = EntIndexToHScript(owner_index)
-	else
+	elseif item then
 		owner_of_this_item = item:GetPurchaser()
 	end
 

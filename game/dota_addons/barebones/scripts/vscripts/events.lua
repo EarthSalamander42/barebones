@@ -227,7 +227,7 @@ function barebones:OnPlayerLearnedAbility(keys)
 		playerID = keys.PlayerID
 	end
 
-    -- PlayerResource:GetBarebonesAssignedHero(index) is custom-made; can be found in 'player_resource.lua' library
+	-- PlayerResource:GetBarebonesAssignedHero(index) is custom-made; can be found in 'player_resource.lua' library
 	local hero = PlayerResource:GetBarebonesAssignedHero(playerID)
 
 	-- Handling talents without custom net tables, this is just an example
@@ -373,7 +373,7 @@ function barebones:OnEntityKilled(keys)
     -- Indexes:
     local killed_entity_index = keys.entindex_killed
     local attacker_entity_index = keys.entindex_attacker
-	local inflictor_index = keys.entindex_inflictor -- it can be nil if not killed by an item/ability
+    local inflictor_index = keys.entindex_inflictor -- it can be nil if not killed by an item/ability
 
     -- Find the entity that was killed
     local killed_unit
@@ -387,8 +387,8 @@ function barebones:OnEntityKilled(keys)
       killer_unit = EntIndexToHScript(attacker_entity_index)
     end
 
-	if killed_unit == nil or killer_unit == nil then
-      -- don't continue if killer or killed entity dont exist
+    if killed_unit == nil or killer_unit == nil then
+      -- Don't continue if killer or killed entity doesn't exist
       return
     end
 
@@ -510,8 +510,8 @@ function barebones:OnEntityKilled(keys)
 
 		-- Setting top bar values
 		if SHOW_KILLS_ON_TOPBAR then
-			--GameRules:GetGameModeEntity():SetTopBarTeamValue(DOTA_TEAM_BADGUYS, GetTeamHeroKills(DOTA_TEAM_BADGUYS))   -- Doesn't work since Diretide
-			--GameRules:GetGameModeEntity():SetTopBarTeamValue(DOTA_TEAM_GOODGUYS, GetTeamHeroKills(DOTA_TEAM_GOODGUYS)) -- Doesn't work since Diretide
+			--GameRules:GetGameModeEntity():SetTopBarTeamValue(DOTA_TEAM_BADGUYS, GetTeamHeroKills(DOTA_TEAM_BADGUYS))   -- Doesn't work since Diretide 2020
+			--GameRules:GetGameModeEntity():SetTopBarTeamValue(DOTA_TEAM_GOODGUYS, GetTeamHeroKills(DOTA_TEAM_GOODGUYS)) -- Doesn't work since Diretide 2020
 			GameRules:GetGameModeEntity():SetCustomRadiantScore(GetTeamHeroKills(DOTA_TEAM_GOODGUYS))
 			GameRules:GetGameModeEntity():SetCustomDireScore(GetTeamHeroKills(DOTA_TEAM_BADGUYS))
 		end

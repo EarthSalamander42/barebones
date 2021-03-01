@@ -1,5 +1,5 @@
 -- This is the primary barebones gamemode script and should be used to assist in initializing your game mode
-BAREBONES_VERSION = "2.0.12"
+BAREBONES_VERSION = "2.0.13"
 
 -- Selection library (by Noya) provides player selection inspection and management from server lua
 require('libraries/selection')
@@ -250,7 +250,7 @@ function barebones:CaptureGameMode()
 		gamemode:SetDraftingBanningTimeOverride(0)
 		if ENABLE_BANNING_PHASE then
 			gamemode:SetDraftingBanningTimeOverride(BANNING_PHASE_TIME)
-			gamemode:SetCustomGameBansPerTeam(5) -- New, I don't know how it works yet
+			GameRules:SetCustomGameBansPerTeam(5)
 		end
 	end
 

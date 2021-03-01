@@ -116,16 +116,17 @@ end
 
 -- Author: Noya
 -- This function hides all dota item cosmetics (hats/wearables) from the hero/unit and store them into a handle variable
+-- Works only for wearables added with code
 function HideWearables(unit)
-	unit.hiddenWearables = {} -- Keep every wearable handle in a table to show them later
-    local model = unit:FirstMoveChild()
-    while model ~= nil do
-        if model:GetClassname() == "dota_item_wearable" then
-            model:AddEffects(EF_NODRAW) -- Set model hidden
-            table.insert(unit.hiddenWearables, model)
-        end
-        model = model:NextMovePeer()
+  unit.hiddenWearables = {} -- Keep every wearable handle in a table to show them later
+  local model = unit:FirstMoveChild()
+  while model ~= nil do
+    if model:GetClassname() == "dota_item_wearable" then
+      model:AddEffects(EF_NODRAW) -- Set model hidden
+      table.insert(unit.hiddenWearables, model)
     end
+    model = model:NextMovePeer()
+  end
 end
 
 -- Author: Noya
@@ -138,6 +139,7 @@ end
 
 -- Author: Noya
 -- This function changes (swaps) dota item cosmetic models (hats/wearables)
+-- Works only for wearables added with code
 function SwapWearable(unit, target_model, new_model)
     local wearable = unit:FirstMoveChild()
     while wearable ~= nil do
