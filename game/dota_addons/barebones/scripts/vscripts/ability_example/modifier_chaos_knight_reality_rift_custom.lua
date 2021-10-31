@@ -18,9 +18,11 @@ function modifier_chaos_knight_reality_rift_custom:OnCreated()
 	local caster = ability:GetCaster()
 	local armor_reduction = ability:GetSpecialValueFor("armor_reduction")
 	
-	-- Talent that increases armor reduction
-	if caster:HasModifier("modifier_reality_rift_talent_2") then
-		armor_reduction = armor_reduction - math.abs(caster.reality_rift_talent_2_value)
+	-- Talent that increases armor reduction ("special_bonus_unique_chaos_knight_barebones_x")
+	-- special_bonus_unique_chaos_knight_barebones_x doesn't exist on the hero, this is for teaching purposes
+	local talent = caster:FindAbilityByName("special_bonus_unique_chaos_knight_barebones_x")
+	if talent and talent:GetLevel() > 0 then
+		armor_reduction = armor_reduction - math.abs(talent:GetSpecialValueFor("value"))
 	end
 	
 	self.armor_reduction = armor_reduction

@@ -1,5 +1,5 @@
 -- This is the primary barebones gamemode script and should be used to assist in initializing your game mode
-BAREBONES_VERSION = "2.0.13"
+BAREBONES_VERSION = "2.0.15"
 
 -- Selection library (by Noya) provides player selection inspection and management from server lua
 require('libraries/selection')
@@ -71,6 +71,8 @@ end
 function barebones:OnGameInProgress()
 	DebugPrint("[BAREBONES] The game has officially begun.")
 
+	-- If the day/night is not changed at 00:00, uncomment the following line:
+	--GameRules:SetTimeOfDay(0.251)
 end
 
 -- This function initializes the game mode and is called before anyone loads into the game
@@ -284,6 +286,6 @@ function barebones:CaptureGameMode()
 	gamemode:DisableHudFlip(FORCE_MINIMAP_ON_THE_LEFT)
 
 	if DEFAULT_DOTA_COURIER then
-		gamemode:SetFreeCourierModeEnabled(true)
+		gamemode:SetFreeCourierModeEnabled(true) -- without this, passive GPM doesn't work, Thanks Valve
 	end
 end

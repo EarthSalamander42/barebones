@@ -228,25 +228,8 @@ function barebones:OnPlayerLearnedAbility(keys)
 	end
 
 	-- PlayerResource:GetBarebonesAssignedHero(index) is custom-made; can be found in 'player_resource.lua' library
+	-- This could return a wrong hero if you change your hero often during gameplay
 	local hero = PlayerResource:GetBarebonesAssignedHero(playerID)
-
-	-- Handling talents without custom net tables, this is just an example
-	local talents = {
-		{"special_bonus_unique_hero_name", "modifier_hero_name_ability_name_talent_number"},
-		{"special_bonus_unique_chaos_knight", "modifier_reality_rift_talent_1"},
-		{"special_bonus_unique_chaos_knight_2", "modifier_reality_rift_talent_2"}
-	}
-
-	for i = 1, #talents do
-		local talent = talents[i]
-		if ability_name == talent[1] then
-			local talent_ability = hero:FindAbilityByName(ability_name)
-			if talent_ability then
-				local talent_modifier = talent[2]
-				hero:AddNewModifier(hero, talent_ability, talent_modifier, {})
-			end
-		end
-	end
 end
 
 -- A player leveled up
@@ -281,16 +264,16 @@ function barebones:OnPlayerLevelUp(keys)
 			hero:SetMaximumGoldBounty(gold_bounty)
 		end
 
-		-- Add a skill point when a hero levels up
-		if SKILL_POINTS_AT_EVERY_LEVEL then
-			local levels_without_ability_point = {17, 19, 21, 22, 23, 24}	-- on this levels you should get a skill point (edit this if needed)
-			for i = 1, #levels_without_ability_point do
-				if level == levels_without_ability_point[i] then
-					local unspent_ability_points = hero:GetAbilityPoints()
-					hero:SetAbilityPoints(unspent_ability_points+1)
-				end
+		-- Example how to add an extra skill point when a hero levels up
+		--[[
+		local levels_without_ability_point = {17, 19, 21, 22, 23, 24}	-- on this levels you should get a skill point (edit this if needed)
+		for i = 1, #levels_without_ability_point do
+			if level == levels_without_ability_point[i] then
+				local unspent_ability_points = hero:GetAbilityPoints()
+				hero:SetAbilityPoints(unspent_ability_points + 1)
 			end
 		end
+		]]
 
 		-- If you want to remove skill points when a hero levels up then uncomment the following line:
 		-- hero:SetAbilityPoints(0)
@@ -498,7 +481,7 @@ function barebones:OnEntityKilled(keys)
 			PlayerResource:SetCustomBuybackCost(killed_unit:GetPlayerID(), BUYBACK_FIXED_GOLD_COST)
 		end
 
-		-- Killer is not a real hero but it killed a hero
+		-- Killer is not a real hero but it killed a hero; IsFountain() is custom-made, can be found in 'util.lua'
 		if killer_unit:IsTower() or killer_unit:IsCreep() or killer_unit:IsFountain() then
 			-- Put stuff here that you want to happen if a hero is killed by a creep, tower or fountain.
 		end

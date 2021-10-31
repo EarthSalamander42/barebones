@@ -83,8 +83,6 @@ FORCE_PICKED_HERO = nil                 -- What hero should we force all players
 -- This will not work if "EnablePickRules" is "1" in 'addoninfo.txt'!
 
 ADD_ITEM_TO_HERO_ON_SPAWN = false       -- Add an example item to the picked hero when he spawns?
-SKILL_POINTS_AT_EVERY_LEVEL = false     -- Should we allow heroes to gain skill points even at levels 17, 19, 21, 22, 23 and 24?
--- NOTE: If SKILL_POINTS_AT_EVERY_LEVEL is true, there will be strange interactions with heroes like Invoker and Meepo.
 
 -- NOTE: use FIXED_RESPAWN_TIME if you want the same respawn time on every level.
 MAX_RESPAWN_TIME = 125					-- Default Dota doesn't have a limit (it can go above 125). Fast game modes should have 20 seconds.
