@@ -9,8 +9,15 @@ end
 -- Player is volatile; After disconnect its destroyed.
 -- what about userid?
 function CDOTA_PlayerResource:OnPlayerConnect(event)
-    local userID = event.userid
-    local playerID = event.index or event.PlayerID
+	local userID = event.userid
+	local playerID = event.PlayerID or event.player_id
+	if not playerID then
+		playerID = userID
+	end
+	
+	if not IsValidPlayerID(playerID) then
+		return
+	end
 
 	if not self.PlayerData[playerID] then
         self.UserIDToPlayerID[userID] = playerID
@@ -25,7 +32,17 @@ function CDOTA_PlayerResource:IsRealPlayer(playerID)
 	if self.PlayerData[playerID] then
 		return true
 	else
-		return false
+		if self:IsFakeClient(playerID) or not IsValidPlayerID(playerID) or not self:GetPlayer(playerID) then
+			return false
+		else
+			local player = self:GetPlayer(playerID)
+			local hero = player:GetAssignedHero()
+			self.PlayerData[playerID] = {}
+			self.PlayerData[playerID].has_abandoned_due_to_long_disconnect = false
+			self.PlayerData[playerID].distribute_gold_to_allies = false
+			self:AssignHero(playerID, hero)
+			return true
+		end
 	end
 end
 
@@ -34,8 +51,12 @@ function CDOTA_PlayerResource:AssignHero(playerID, hero_entity)
 	if self:IsRealPlayer(playerID) then
 		self.PlayerData[playerID].hero = hero_entity
 		self.PlayerData[playerID].hero_name = hero_entity:GetUnitName()
-		DebugPrint("[BAREBONES] Assigned "..self.PlayerData[playerID].hero_name.." to the player with ID "..playerID)
+	else
+		self.PlayerData[playerID] = {}
+		self.PlayerData[playerID].hero = hero_entity
+		self.PlayerData[playerID].hero_name = hero_entity:GetUnitName()
 	end
+	DebugPrint("[BAREBONES] Assigned "..self.PlayerData[playerID].hero_name.." to the player with ID "..playerID)
 end
 
 -- Fetches a player's hero
@@ -67,6 +88,14 @@ end
 function CDOTA_PlayerResource:GetAssignedHeroName(playerID)
 	if self:IsRealPlayer(playerID) then
 		return self.PlayerData[playerID].hero_name
+	else
+		local player = self:GetPlayer(playerID)
+		if player then
+			local hero = player:GetAssignedHero()
+			if hero then
+				return hero:GetUnitName()
+			end
+		end
 	end
 	return nil
 end
@@ -94,7 +123,7 @@ end
 -- Find how many players didn't abandon
 function CDOTA_PlayerResource:GetPlayerCountWithoutLeavers()
     local count = 0
-     for playerID = 0, 19 do
+     for playerID = 0, DOTA_MAX_TEAM_PLAYERS-1 do
         if self:IsValidPlayerID(playerID) then
 			if self:GetConnectionState(playerID) ~= DOTA_CONNECTION_STATE_ABANDONED then
 				count = count + 1
@@ -136,7 +165,7 @@ function CDOTA_PlayerResource:StartAbandonGoldRedistribution(playerID)
 	local gold_per_interval = GOLD_PER_TICK
 
 	-- Distribute initial gold
-	for id = 0, 19 do
+	for id = 0, DOTA_MAX_TEAM_PLAYERS-1 do
 		if self:IsRealPlayer(id) and (not self.PlayerData[id].distribute_gold_to_allies) and self:GetTeam(id) == player_team then
 			current_allies[#current_allies + 1] = id
 		end
@@ -165,7 +194,7 @@ function CDOTA_PlayerResource:StartAbandonGoldRedistribution(playerID)
 		current_gold = current_gold + gold_per_interval
 
 		-- Update active ally amount
-		for id = 0, 19 do
+		for id = 0, DOTA_MAX_TEAM_PLAYERS-1 do
 			if self:IsRealPlayer(id) and (not self.PlayerData[id].distribute_gold_to_allies) and self:GetTeam(id) == player_team then
 				current_allies[#current_allies + 1] = id
 			end

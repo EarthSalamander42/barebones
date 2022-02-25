@@ -531,13 +531,9 @@ end
 -- This function is called once when the player fully connects and becomes "Ready" during Loading
 function barebones:OnConnectFull(keys)
 	DebugPrint("[BAREBONES] A Player fully connected.")
-	--PrintTable(keys)
+	PrintTable(keys)
 
 	self:CaptureGameMode()
-
-	local index = keys.index           -- player slot
-	local playerID = keys.PlayerID
-	local userID = keys.userid         -- user ID on server
 
 	-- PlayerResource:OnPlayerConnect(event) is custom-made; can be found in 'player_resource.lua' library
 	PlayerResource:OnPlayerConnect(keys)
