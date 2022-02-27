@@ -110,9 +110,9 @@ function barebones:OnHeroInGame(hero)
 			hero:SetGold(NORMAL_START_GOLD, false)
 		else
 			DebugPrint("[BAREBONES] OnHeroInGame running for a non-bot player!")
-			if not PlayerResource.PlayerData[playerID] then
-				PlayerResource.PlayerData[playerID] = {}
-				DebugPrint("[BAREBONES] PlayerResource's PlayerData for playerID "..playerID.." was not properly initialized.")
+			if not PlayerResource.PlayerData[playerID] and PlayerResource:IsValidPlayerID(playerID) then
+				PlayerResource:InitPlayerDataForID(playerID)
+				--DebugPrint("[BAREBONES] PlayerResource's PlayerData for playerID "..playerID.." was not properly initialized.")
 			end
 			if hero:IsClone() then
 				DebugPrint("[BAREBONES] Spawned hero is a Meepo clone")
@@ -183,12 +183,16 @@ function barebones:OnPlayerReconnect(keys)
 	local new_state = GameRules:State_Get()
 	if new_state > DOTA_GAMERULES_STATE_HERO_SELECTION then
 		local playerID = keys.PlayerID or keys.player_id
+		
+		if not playerID or not PlayerResource:IsValidPlayerID(playerID) then
+			print("Reconnected player ID isn't valid!")
+		end
 
 		if PlayerResource:HasSelectedHero(playerID) or PlayerResource:HasRandomed(playerID) then
 			-- This playerID already had a hero before disconnect
 		else
 			-- PlayerResource:IsConnected(index) is custom-made; can be found in 'player_resource.lua' library
-			if PlayerResource:IsConnected(playerID) and (not PlayerResource:IsBroadcaster(playerID)) then
+			if PlayerResource:IsConnected(playerID) and not PlayerResource:IsBroadcaster(playerID) then
 				PlayerResource:GetPlayer(playerID):MakeRandomHeroSelection()
 				PlayerResource:SetHasRandomed(playerID)
 				PlayerResource:SetCanRepick(playerID, false)
@@ -333,9 +337,9 @@ function barebones:OnPlayerPickHero(keys)
 		if PlayerResource:IsFakeClient(playerID) then
 			-- This is happening only for bots when they spawn for the first time or if they use custom hero-create spells (Custom Illusion spells)
 		else
-			if not PlayerResource.PlayerData[playerID] then
-				PlayerResource.PlayerData[playerID] = {}
-				DebugPrint("[BAREBONES] PlayerResource's PlayerData for playerID "..playerID.." was not properly initialized.")
+			if not PlayerResource.PlayerData[playerID] and PlayerResource:IsValidPlayerID(playerID) then
+				PlayerResource:InitPlayerDataForID(playerID)
+				--DebugPrint("[BAREBONES] PlayerResource's PlayerData for playerID "..playerID.." was not properly initialized.")
 			end
 			if PlayerResource.PlayerData[playerID].already_assigned_hero == true then
 				-- This is happening only when players create new heroes or replacing heroes
