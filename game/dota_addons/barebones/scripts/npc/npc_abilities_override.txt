@@ -289,6 +289,12 @@
   //"item_swift_blink"              "REMOVE"
   //"item_recipe_arcane_blink"      "REMOVE"
   //"item_arcane_blink"             "REMOVE"
+  //"item_recipe_boots_of_bearing"  "REMOVE"
+  //"item_boots_of_bearing"         "REMOVE"
+  //"item_recipe_wraith_pact"       "REMOVE"
+  //"item_wraith_pact"              "REMOVE"
+  //"item_recipe_revenants_brooch"  "REMOVE"
+  //"item_revenants_brooch"         "REMOVE"
 
   // Neutral items
   //"item_keen_optic"               "REMOVE"

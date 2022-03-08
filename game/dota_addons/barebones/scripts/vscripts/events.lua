@@ -3,7 +3,7 @@
 
 -- Handle stuff when a player disconnects
 function barebones:OnDisconnect(keys)
-	DebugPrint("[BAREBONES] A Player has disconnected ".. tostring(keys.userid))
+	DebugPrint("[BAREBONES] A Player has disconnected")
 	--PrintTable(keys)
 
 	local name = keys.name
@@ -65,7 +65,14 @@ function barebones:OnNPCSpawned(keys)
 	--DebugPrint("[BAREBONES] A unit Spawned")
 	--PrintTable(keys)
 
-	local npc = EntIndexToHScript(keys.entindex)
+	local npc 
+	if keys.entindex then
+		npc = EntIndexToHScript(keys.entindex)
+	else
+		print("npc_spawned event doesn't have entindex key")
+		return
+	end
+
 	local unit_owner = npc:GetOwner()
 
 	-- Put things here that will happen for every unit or hero when they spawn
@@ -105,25 +112,24 @@ function barebones:OnHeroInGame(hero)
 
 		if PlayerResource:IsFakeClient(playerID) then
 			-- This is happening only for bots
-			DebugPrint("[BAREBONES] Bot hero "..hero:GetUnitName().." (re)spawned in the game.")
+			DebugPrint("[BAREBONES] OnHeroInGame - Bot hero "..hero:GetUnitName().." (re)spawned in the game.")
 			-- Set starting gold for bots
 			hero:SetGold(NORMAL_START_GOLD, false)
 		else
 			DebugPrint("[BAREBONES] OnHeroInGame running for a non-bot player!")
 			if not PlayerResource.PlayerData[playerID] and PlayerResource:IsValidPlayerID(playerID) then
 				PlayerResource:InitPlayerDataForID(playerID)
-				--DebugPrint("[BAREBONES] PlayerResource's PlayerData for playerID "..playerID.." was not properly initialized.")
 			end
 			if hero:IsClone() then
-				DebugPrint("[BAREBONES] Spawned hero is a Meepo clone")
+				DebugPrint("[BAREBONES] OnHeroInGame - Spawned hero is a Meepo clone")
 				return
 			end
 			if hero:IsTempestDouble() then
-				DebugPrint("[BAREBONES] Spawned hero is a Tempest Double")
+				DebugPrint("[BAREBONES] OnHeroInGame - Spawned hero is a Tempest Double")
 				return
 			end
 			if hero:HasModifier("modifier_monkey_king_fur_army_soldier_hidden") then
-				DebugPrint("[BAREBONES] Spawned hero is a Monkey King clone")
+				DebugPrint("[BAREBONES] OnHeroInGame - Spawned hero is a Monkey King clone")
 				return
 			end
 			-- Set some hero stuff on first spawn or on every spawn (custom or not)
@@ -131,7 +137,7 @@ function barebones:OnHeroInGame(hero)
 				-- This is happening only when players create new heroes or replace them
 			else
 				-- This is happening for players when their primary hero spawns for the first time
-				DebugPrint("[BAREBONES] Hero "..hero:GetUnitName().." spawned in the game for the first time for the player with ID "..playerID)
+				DebugPrint("[BAREBONES] OnHeroInGame - Hero "..hero:GetUnitName().." spawned in the game for the first time for the player with ID: "..playerID)
 
 				-- Make heroes briefly visible on spawn (to prevent bad fog of war interactions)
 				hero:MakeVisibleToTeam(DOTA_TEAM_GOODGUYS, 0.5)
@@ -151,7 +157,7 @@ function barebones:OnHeroInGame(hero)
 				-- Make sure that stuff above will not happen again for the player if some other hero spawns
 				-- for him for the first time during the game 
 				PlayerResource.PlayerData[playerID].already_set_hero = true
-				DebugPrint("[BAREBONES] Hero "..hero:GetUnitName().." set for the player with ID "..playerID)
+				DebugPrint("[BAREBONES] OnHeroInGame - Hero "..hero:GetUnitName().." set for the player with ID: "..playerID)
 			end
 		end
 	end)
@@ -159,7 +165,7 @@ end
 
 -- An item was picked up off the ground
 function barebones:OnItemPickedUp(keys)
-	DebugPrint("[BAREBONES] OnItemPickedUp")
+	DebugPrint("[BAREBONES] OnItemPickedUp event")
 	--PrintTable(keys)
 
 	-- Find who picked up the item
@@ -170,7 +176,10 @@ function barebones:OnItemPickedUp(keys)
 		unit_entity = EntIndexToHScript(keys.HeroEntityIndex)
 	end
 
-	local item_entity = EntIndexToHScript(keys.ItemEntityIndex)
+	local item_entity
+	if keys.ItemEntityIndex then
+		item_entity = EntIndexToHScript(keys.ItemEntityIndex)
+	end
 	local playerID = keys.PlayerID
 	local item_name = keys.itemname
 end
@@ -185,18 +194,18 @@ function barebones:OnPlayerReconnect(keys)
 		local playerID = keys.PlayerID or keys.player_id
 		
 		if not playerID or not PlayerResource:IsValidPlayerID(playerID) then
-			print("Reconnected player ID isn't valid!")
+			print("OnPlayerReconnect - Reconnected player ID isn't valid!")
 		end
 
 		if PlayerResource:HasSelectedHero(playerID) or PlayerResource:HasRandomed(playerID) then
 			-- This playerID already had a hero before disconnect
 		else
-			-- PlayerResource:IsConnected(index) is custom-made; can be found in 'player_resource.lua' library
+			-- PlayerResource:IsConnected(playerID) is custom-made; can be found in 'player_resource.lua' library
 			if PlayerResource:IsConnected(playerID) and not PlayerResource:IsBroadcaster(playerID) then
 				PlayerResource:GetPlayer(playerID):MakeRandomHeroSelection()
 				PlayerResource:SetHasRandomed(playerID)
 				PlayerResource:SetCanRepick(playerID, false)
-				DebugPrint("[BAREBONES] Randomed a hero for a player number "..playerID.." that reconnected.")
+				DebugPrint("[BAREBONES] OnPlayerReconnect - Randomed a hero for a player ID "..playerID.." that reconnected.")
 			end
 		end
 	end
@@ -209,12 +218,12 @@ function barebones:OnAbilityUsed(keys)
 	local playerID = keys.PlayerID
 	local ability_name = keys.abilityname
 
-	-- If you need to adjust abilities on their cast, use Order Filter or modifier events, not this
+	-- If you need to adjust abilities before or during their cast, use Order Filter or modifier events, not this
 end
 
 -- A player leveled up an ability; Note: IT DOESN'T TRIGGER WHEN YOU USE SetLevel() ON THE ABILITY!
 function barebones:OnPlayerLearnedAbility(keys)
-	DebugPrint("[BAREBONES] OnPlayerLearnedAbility")
+	DebugPrint("[BAREBONES] OnPlayerLearnedAbility event")
 	--PrintTable(keys)
 
 	local player
@@ -238,11 +247,11 @@ end
 
 -- A player leveled up
 function barebones:OnPlayerLevelUp(keys)
-	DebugPrint("[BAREBONES] OnPlayerLevelUp")
+	DebugPrint("[BAREBONES] OnPlayerLevelUp event")
 	--PrintTable(keys)
 
 	local level = keys.level
-	local playerID = keys.player_id or keys.PlayerID -- Valve keeps changing this :)
+	local playerID = keys.player_id or keys.PlayerID
 
 	local hero 
 	if keys.hero_entindex then
@@ -284,9 +293,9 @@ function barebones:OnPlayerLevelUp(keys)
 	end
 end
 
--- A player last hit a creep, a tower, or a hero
+-- A unit last hit a creep, a tower, or a hero
 function barebones:OnLastHit(keys)
-	DebugPrint("[BAREBONES] OnLastHit")
+	--DebugPrint("[BAREBONES] OnLastHit event")
 	--PrintTable(keys)
 
 	local IsFirstBlood = keys.FirstBlood == 1
@@ -297,12 +306,15 @@ function barebones:OnLastHit(keys)
 	local playerID = keys.PlayerID
 
 	-- Killed unit (creep, hero, tower etc.)
-	local killed_entity = EntIndexToHScript(keys.EntKilled)
+	local killed_entity 
+	if keys.EntKilled then
+		killed_entity = EntIndexToHScript(keys.EntKilled)
+	end
 end
 
 -- A tree was cut down by tango, quelling blade, etc
 function barebones:OnTreeCut(keys)
-	DebugPrint("[BAREBONES] OnTreeCut")
+	DebugPrint("[BAREBONES] OnTreeCut event")
 	--PrintTable(keys)
 
 	-- Tree coordinates on the map
@@ -312,7 +324,7 @@ end
 
 -- A rune was activated by a player
 function barebones:OnRuneActivated(keys)
-	DebugPrint("[BAREBONES] OnRuneActivated")
+	DebugPrint("[BAREBONES] OnRuneActivated event")
 	--PrintTable(keys)
 
   local playerID = keys.PlayerID
@@ -325,25 +337,33 @@ end
 
 -- A player picked or randomed a hero, it actually happens on spawn (this is sometimes happening before OnHeroInGame).
 function barebones:OnPlayerPickHero(keys)
-	DebugPrint("[BAREBONES] OnPlayerPickHero")
+	DebugPrint("[BAREBONES] OnPlayerPickHero event")
 	--PrintTable(keys)
 
 	local hero_name = keys.hero
-	local hero_entity = EntIndexToHScript(keys.heroindex)
-	local player = EntIndexToHScript(keys.player)
+	local hero_entity
+	if keys.heroindex then
+		hero_entity = EntIndexToHScript(keys.heroindex)
+	end
+	local player
+	if keys.player then
+		player = EntIndexToHScript(keys.player)
+	end
 
 	Timers:CreateTimer(0.5, function()
+		if not hero_entity then
+			return
+		end
 		local playerID = hero_entity:GetPlayerID() -- or player:GetPlayerID() if player is not disconnected
 		if PlayerResource:IsFakeClient(playerID) then
 			-- This is happening only for bots when they spawn for the first time or if they use custom hero-create spells (Custom Illusion spells)
 		else
 			if not PlayerResource.PlayerData[playerID] and PlayerResource:IsValidPlayerID(playerID) then
 				PlayerResource:InitPlayerDataForID(playerID)
-				--DebugPrint("[BAREBONES] PlayerResource's PlayerData for playerID "..playerID.." was not properly initialized.")
 			end
 			if PlayerResource.PlayerData[playerID].already_assigned_hero == true then
 				-- This is happening only when players create new heroes or replacing heroes
-				DebugPrint("[BAREBONES] Player with playerID "..playerID.." got a new hero "..hero_entity:GetUnitName())
+				DebugPrint("[BAREBONES] OnPlayerPickHero - Player with playerID "..playerID.." got another hero: "..hero_entity:GetUnitName())
 			else
 				PlayerResource:AssignHero(playerID, hero_entity)
 				PlayerResource.PlayerData[playerID].already_assigned_hero = true
@@ -426,6 +446,7 @@ function barebones:OnEntityKilled(keys)
 			else
 				-- Get dota default respawn time
 				respawn_time = killed_unit:GetRespawnTime()
+				DebugPrint("[BAREBONES] OnEntityKilled - Default respawn time for "..killed_unit:GetUnitName().." is "..respawn_time.." seconds.")
 			end
 
 			-- Fixing respawn time after level 30, this is usually bugged in custom games if default respawn times are used -> respawn time are either too long or too short. We fix that.
@@ -449,14 +470,14 @@ function barebones:OnEntityKilled(keys)
 				-- end
 			-- end
 
-			-- Reaper's Scythe respawn time increase
-			if killing_ability then
-				if killing_ability:GetAbilityName() == "necrolyte_reapers_scythe" then
-					DebugPrint("[BAREBONES] A hero was killed by a Necro Reaper's Scythe. Increasing respawn time!")
-					local respawn_extra_time = killing_ability:GetLevelSpecialValueFor("respawn_constant", killing_ability:GetLevel() - 1)
-					respawn_time = respawn_time + respawn_extra_time
-				end
-			end
+			-- Old Reaper's Scythe respawn time increase
+			-- if killing_ability then
+				-- if killing_ability:GetAbilityName() == "necrolyte_reapers_scythe" then
+					-- DebugPrint("[BAREBONES] OnEntityKilled - A hero was killed by a Necro Reaper's Scythe. Increasing respawn time!")
+					-- local respawn_extra_time = killing_ability:GetLevelSpecialValueFor("respawn_constant", killing_ability:GetLevel() - 1)
+					-- respawn_time = respawn_time + respawn_extra_time
+				-- end
+			-- end
 
 			-- Killer is a neutral creep
 			if killer_unit:IsNeutralUnitType() then
@@ -465,7 +486,7 @@ function barebones:OnEntityKilled(keys)
 
 			-- Capping Respawn Time (MAX respawn time)
 			if respawn_time > MAX_RESPAWN_TIME then
-				DebugPrint("[BAREBONES] Reducing respawn time of "..killed_unit:GetUnitName().." because it was too long.")
+				DebugPrint("[BAREBONES] OnEntityKilled - Reducing respawn time of "..killed_unit:GetUnitName().." because it was too long.")
 				respawn_time = MAX_RESPAWN_TIME
 			end
 			
@@ -535,7 +556,7 @@ end
 -- This function is called once when the player fully connects and becomes "Ready" during Loading
 function barebones:OnConnectFull(keys)
 	DebugPrint("[BAREBONES] A Player fully connected.")
-	PrintTable(keys)
+	--PrintTable(keys)
 
 	self:CaptureGameMode()
 
@@ -545,7 +566,7 @@ end
 
 -- This function is called whenever a tower is destroyed
 function barebones:OnTowerKill(keys)
-	DebugPrint("[BAREBONES] OnTowerKill")
+	DebugPrint("[BAREBONES] OnTowerKill event")
 	--PrintTable(keys)
 
 	local gold = keys.gold
@@ -555,7 +576,7 @@ end
 
 -- This function is called whenever a player changes their custom team selection during Custom Game Setup 
 function barebones:OnPlayerSelectedCustomTeam(keys)
-	DebugPrint("[BAREBONES] OnPlayerSelectedCustomTeam")
+	DebugPrint("[BAREBONES] OnPlayerSelectedCustomTeam event")
 	--PrintTable(keys)
 
 	local playerID = keys.player_id
@@ -592,7 +613,7 @@ end
 
 -- This function is called whenever any player sends a chat message to team or to All
 function barebones:OnPlayerChat(keys)
-	DebugPrint("[BAREBONES] Player used the chat")
+	DebugPrint("[BAREBONES] A Player has used the chat")
 	--PrintTable(keys)
 
 	local team_only = keys.teamonly -- true if team only chat

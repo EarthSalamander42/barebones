@@ -6,9 +6,10 @@ if CDOTA_PlayerResource.PlayerData == nil then
 end
 
 -- PlayerID stays the same after disconnect/reconnect
--- Player is volatile; After disconnect its destroyed.
+-- Player handle is volatile; After disconnect it's destroyed.
 
 function CDOTA_PlayerResource:InitPlayerDataForID(playerID)
+	DebugPrint("[BAREBONES] Initializing PlayerResource's PlayerData for the player with ID: "..tostring(playerID))
 	if not self:IsValidPlayerID(playerID) then
 		return
 	end
@@ -23,12 +24,19 @@ end
 
 function CDOTA_PlayerResource:OnPlayerConnect(event)
 	local userID = event.userid
-	local playerID = event.PlayerID or event.player_id or event.index
+	local playerID = event.PlayerID or event.player_id
 	if not playerID then
-		print("player_connect_full event doesn't contain PlayerID, player_id or index key! Thanks Valve.")
+		if event.index then
+			playerID = event.index - 1
+			print("player_connect_full event doesn't contain PlayerID or player_id key!")
+		else
+			print("player_connect_full event doesn't contain PlayerID, player_id or index key! Thanks Valve")
+		end
 	end
 	
-	self.UserIDToPlayerID[userID] = playerID
+	if userID then
+		self.UserIDToPlayerID[userID] = playerID
+	end
 	if self:IsValidPlayerID(playerID) then
 		self:InitPlayerDataForID(playerID)
 	end
@@ -59,7 +67,7 @@ function CDOTA_PlayerResource:AssignHero(playerID, hero_entity)
 	end
 	self.PlayerData[playerID].hero = hero
 	self.PlayerData[playerID].hero_name = hero:GetUnitName()
-	DebugPrint("[BAREBONES] Assigned "..self.PlayerData[playerID].hero_name.." to the player with ID "..playerID)
+	DebugPrint("[BAREBONES] Assigned "..self.PlayerData[playerID].hero_name.." to the player with ID: "..tostring(playerID))
 end
 
 -- Fetches a player's hero
