@@ -119,8 +119,6 @@ function barebones:DamageFilter(keys)
 	local damaging_ability
 	if inflictor then
 		damaging_ability = EntIndexToHScript(inflictor)
-	else
-		damaging_ability = nil
 	end
 
 	-- Lack of entities handling (illusions error fix)
@@ -155,12 +153,15 @@ end
 function barebones:ModifierFilter(keys)
 	--PrintTable(keys)
 
-	local unit_with_modifier = EntIndexToHScript(keys.entindex_parent_const)
+	local unit_with_modifier 
+	if keys.entindex_parent_const then
+		unit_with_modifier = EntIndexToHScript(keys.entindex_parent_const)
+	end
 	local modifier_name = keys.name_const
 	local modifier_duration = keys.duration
-	local modifier_caster
+	local caster
 	if keys.entindex_caster_const then
-		modifier_caster = EntIndexToHScript(keys.entindex_caster_const)
+		caster = EntIndexToHScript(keys.entindex_caster_const)
 	end
 
 	return true
@@ -219,18 +220,13 @@ function barebones:HealingFilter(keys)
 
 	local healing_target_index = keys.entindex_target_const
 	local heal_amount = keys.heal -- heal amount of the ability or health restored with hp regen during server tick
+	local healer_index = keys.entindex_healer_const
+	local healing_ability_index = keys.entindex_inflictor_const
 
-	local healer_index
-	if keys.entindex_healer_const then
-		healer_index = keys.entindex_healer_const
+	local healing_target
+	if healing_target_index then
+		healing_target = EntIndexToHScript(healing_target_index)
 	end
-
-	local healing_ability_index
-	if keys.entindex_inflictor_const then
-		healing_ability_index = keys.entindex_inflictor_const
-	end
-
-	local healing_target = EntIndexToHScript(healing_target_index)
 
 	-- Find the source of the heal - the healer
 	local healer
@@ -245,9 +241,8 @@ function barebones:HealingFilter(keys)
 	local healing_ability
 	if healing_ability_index then
 		healing_ability = EntIndexToHScript(healing_ability_index)
-	else
-		healing_ability = nil -- hp regen
 	end
+	-- If healing_ability is nil then the 'source' of the heal is unit's hp regen
 
 	return true
 end
@@ -344,7 +339,13 @@ function barebones:InventoryFilter(keys)
 
 	local owner_name
 	if owner_of_this_item then
-		owner_name = owner_of_this_item:GetUnitName()
+		if owner_of_this_item.GetUnitName then
+			-- owner is an NPC
+			owner_name = owner_of_this_item:GetUnitName()
+		elseif owner_of_this_item.IsPlayer and (owner_of_this_item:IsPlayer() or owner_of_this_item:IsPlayerController()) then
+			-- owner is a player
+			owner_name = owner_of_this_item:GetName() -- not ideal but you get the idea
+		end
 	end
 
 	return true

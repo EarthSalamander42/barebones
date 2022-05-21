@@ -1,6 +1,7 @@
 if not CDOTA_PlayerResource.UserIDToPlayerID then
 	CDOTA_PlayerResource.UserIDToPlayerID = {}
 end
+
 if CDOTA_PlayerResource.PlayerData == nil then
 	CDOTA_PlayerResource.PlayerData = {}
 end
@@ -148,7 +149,7 @@ end
 function CDOTA_PlayerResource:SetHasAbandonedDueToLongDisconnect(playerID, state)
 	if self:IsRealPlayer(playerID) then
 		self.PlayerData[playerID].has_abandoned_due_to_long_disconnect = state
-		print("Set player "..playerID.." 's abandon due to long disconnect state as "..tostring(state))
+		DebugPrint("[BAREBONES] Set player "..playerID.." 's abandon due to long disconnect state as "..tostring(state))
 	end
 end
 
@@ -166,14 +167,15 @@ function CDOTA_PlayerResource:StartAbandonGoldRedistribution(playerID)
 
 	-- Set redistribution as active
 	self.PlayerData[playerID].distribute_gold_to_allies = true
-	print("player "..playerID.." is now redistributing gold to its allies.")
+	DebugPrint("[BAREBONES] Player "..playerID.." is now redistributing gold to its allies.")
 
 	-- Fetch this player's team
 	local player_team = self:GetTeam(playerID)
 	local current_gold = self:GetGold(playerID)
 	local current_allies = {}
 	local ally_amount = 0
-	local gold_per_interval = GOLD_PER_TICK
+	local gold_per_interval = GOLD_PER_TICK or 1
+	local interval = GOLD_TICK_TIME or 3
 
 	-- Distribute initial gold
 	for id = 0, DOTA_MAX_TEAM_PLAYERS-1 do
@@ -190,7 +192,7 @@ function CDOTA_PlayerResource:StartAbandonGoldRedistribution(playerID)
 		for _,ally_id in pairs(current_allies) do
 			self:ModifyGold(ally_id, gold_per_ally, false, DOTA_ModifyGold_AbandonedRedistribute)
 		end
-		print("distributed "..gold_to_share.." gold initially ("..gold_per_ally.." per ally)")
+		DebugPrint("[BAREBONES] Distributed "..gold_to_share.." gold initially ("..gold_per_ally.." per ally)")
 	end
 
 	-- Update the variables to start the cycle
@@ -199,7 +201,7 @@ function CDOTA_PlayerResource:StartAbandonGoldRedistribution(playerID)
 	current_allies = {}
 
 	-- Start the redistribution cycle
-	Timers:CreateTimer(3, function()
+	Timers:CreateTimer(interval, function()
 
 		-- Update gold according to passive gold gain
 		current_gold = current_gold + gold_per_interval
@@ -219,7 +221,7 @@ function CDOTA_PlayerResource:StartAbandonGoldRedistribution(playerID)
 			for _,ally_id in pairs(current_allies) do
 				self:ModifyGold(ally_id, gold_per_ally, false, DOTA_ModifyGold_AbandonedRedistribute)
 			end
-			print("distributed "..gold_to_share.." gold ("..gold_per_ally.." per ally)")
+			DebugPrint("[BAREBONES] Distributed "..gold_to_share.." gold ("..gold_per_ally.." per ally)")
 		end
 
 		-- Update variables
@@ -229,7 +231,7 @@ function CDOTA_PlayerResource:StartAbandonGoldRedistribution(playerID)
 
 		-- Keep going, if applicable
 		if self.PlayerData[playerID].distribute_gold_to_allies then
-			return 3
+			return interval
 		end
 	end)
 end
@@ -238,7 +240,7 @@ end
 function CDOTA_PlayerResource:StopAbandonGoldRedistribution(playerID)
   self.PlayerData[playerID].distribute_gold_to_allies = false
   self:ModifyGold(playerID, -self:GetGold(playerID), false, DOTA_ModifyGold_AbandonedRedistribute)
-  print("player "..playerID.." is no longer redistributing gold to its allies.")
+  DebugPrint("[BAREBONES] Player "..playerID.." is no longer redistributing gold to its allies.")
 end
 
 function CDOTA_PlayerResource:GetRealSteamID(PlayerID)
@@ -248,7 +250,7 @@ end
 function CDOTA_PlayerResource:GetTotalEarnedXPForTeam(teamID)
   local total_xp = 0
   for playerID = 0, DOTA_MAX_TEAM_PLAYERS-1 do
-    if (self:IsValidPlayerID(playerID)) and self:GetTeam(playerID) == teamID then
+    if self:IsValidPlayerID(playerID) and self:GetTeam(playerID) == teamID then
       total_xp = total_xp + self:GetTotalEarnedXP(playerID)
     end
   end

@@ -1,5 +1,5 @@
 -- This file contains all barebones-registered events and has already set up the passed-in parameters for you to use.
--- You should comment or remove the stuff you don't need!
+-- You should comment out or remove the stuff you don't need!
 
 -- Handle stuff when a player disconnects
 function barebones:OnDisconnect(keys)
@@ -45,7 +45,9 @@ function barebones:OnGameRulesStateChange(keys)
 
 	elseif new_state == DOTA_GAMERULES_STATE_PRE_GAME then
 		DebugPrint("[BAREBONES] Game State changed to: DOTA_GAMERULES_STATE_PRE_GAME")
-		GameRules:GetGameModeEntity():SetCustomDireScore(0) -- Thanks for Diretide
+		local gamemode = GameRules:GetGameModeEntity()
+		gamemode:SetCustomDireScore(0)
+		gamemode:SetCustomRadiantScore(0)
 
 	elseif new_state == DOTA_GAMERULES_STATE_GAME_IN_PROGRESS then
 		DebugPrint("[BAREBONES] Game State changed to: DOTA_GAMERULES_STATE_GAME_IN_PROGRESS")
@@ -78,7 +80,7 @@ function barebones:OnNPCSpawned(keys)
 	-- Put things here that will happen for every unit or hero when they spawn
 
 	-- OnHeroInGame
-	if npc:IsRealHero() and npc.bFirstSpawned == nil then
+	if npc:IsRealHero() and not npc.bFirstSpawned then
 		npc.bFirstSpawned = true
 		self:OnHeroInGame(npc)
 	end
@@ -93,7 +95,7 @@ end
 ]]
 function barebones:OnHeroInGame(hero)
 	-- Innate abilities like Earth Spirit Stone Remnant (abilities that a hero needs to have auto-leveled up at the start of the game)
-	-- Add all custom innate abilities here
+	-- Take a look at this guide: https://moddota.com/abilities/creating-innate-abilities
 	local innate_abilities = {
 		"innate_ability1",
 		"innate_ability2"
@@ -105,6 +107,28 @@ function barebones:OnHeroInGame(hero)
 		if current_ability then
 			current_ability:SetLevel(1)
 		end
+	end
+
+	local function IsMonkeyKingClone(unit)
+		if unit.HasModifier == nil then
+			return
+		end
+
+		local monkey_king_soldier_modifiers = {
+			"modifier_monkey_king_fur_army_soldier_hidden",
+			"modifier_monkey_king_fur_army_soldier",
+			"modifier_monkey_king_fur_army_thinker"
+			"modifier_monkey_king_fur_army_soldier_inactive",
+			"modifier_monkey_king_fur_army_soldier_in_position",
+		}
+
+		for _, v in pairs(monkey_king_soldier_modifiers) do
+		  if unit:HasModifier(v) then
+			return true
+		  end
+		end
+
+		return false
 	end
 
 	Timers:CreateTimer(0.5, function()
@@ -121,15 +145,13 @@ function barebones:OnHeroInGame(hero)
 				PlayerResource:InitPlayerDataForID(playerID)
 			end
 			if hero:IsClone() then
-				DebugPrint("[BAREBONES] OnHeroInGame - Spawned hero is a Meepo clone")
+				DebugPrint("[BAREBONES] OnHeroInGame - Spawned hero is a Meepo Clone")
 				return
-			end
-			if hero:IsTempestDouble() then
+			elseif hero:IsTempestDouble() then
 				DebugPrint("[BAREBONES] OnHeroInGame - Spawned hero is a Tempest Double")
 				return
-			end
-			if hero:HasModifier("modifier_monkey_king_fur_army_soldier_hidden") then
-				DebugPrint("[BAREBONES] OnHeroInGame - Spawned hero is a Monkey King clone")
+			elseif IsMonkeyKingClone(hero) then
+				DebugPrint("[BAREBONES] OnHeroInGame - Spawned hero is a Monkey King soldier")
 				return
 			end
 			-- Set some hero stuff on first spawn or on every spawn (custom or not)
@@ -145,10 +167,10 @@ function barebones:OnHeroInGame(hero)
 
 				-- Set the starting gold for the player's hero 
 				-- Use 'PlayerResource:ModifyGold(playerID, NORMAL_START_GOLD-600, false, 0)' if GameRules:SetStartingGold breaks again
-				-- If the NORMAL_START_GOLD is less then 600, disable Strategy Time and use 'hero:SetGold(NORMAL_START_GOLD, false)' instead
+				-- If the NORMAL_START_GOLD is less than 600, disable Strategy Time and use 'hero:SetGold(NORMAL_START_GOLD, false)' instead
 				-- Why? Because OnHeroInGame is triggering during PreGame (after Strategy Time) and players can buy items during Strategy Time (starting gold will remain default 600)
 
-				-- Create an item and add it to the player, effectively ensuring they start with the item
+				-- Create an item and add it to the player's hero, effectively ensuring they start with the item
 				if ADD_ITEM_TO_HERO_ON_SPAWN then
 					local item = CreateItem("item_example_item", hero, hero)
 					hero:AddItem(item)
@@ -192,7 +214,7 @@ function barebones:OnPlayerReconnect(keys)
 	local new_state = GameRules:State_Get()
 	if new_state > DOTA_GAMERULES_STATE_HERO_SELECTION then
 		local playerID = keys.PlayerID or keys.player_id
-		
+
 		if not playerID or not PlayerResource:IsValidPlayerID(playerID) then
 			print("OnPlayerReconnect - Reconnected player ID isn't valid!")
 		end
@@ -407,7 +429,7 @@ function barebones:OnEntityKilled(keys)
 
     -- For Meepo clones, find the original
     if killed_unit:IsClone() then
-      if killed_unit:GetCloneSource() then
+      if killed_unit.GetCloneSource and killed_unit:GetCloneSource() then
         killed_unit = killed_unit:GetCloneSource()
       end
     end
@@ -489,7 +511,7 @@ function barebones:OnEntityKilled(keys)
 				DebugPrint("[BAREBONES] OnEntityKilled - Reducing respawn time of "..killed_unit:GetUnitName().." because it was too long.")
 				respawn_time = MAX_RESPAWN_TIME
 			end
-			
+
 			-- If hero is actually reincarnating don't change his respawn time:
 			if not killed_unit:IsReincarnating() then
 				killed_unit:SetTimeUntilRespawn(respawn_time)
@@ -518,10 +540,11 @@ function barebones:OnEntityKilled(keys)
 
 		-- Setting top bar values
 		if SHOW_KILLS_ON_TOPBAR then
-			--GameRules:GetGameModeEntity():SetTopBarTeamValue(DOTA_TEAM_BADGUYS, GetTeamHeroKills(DOTA_TEAM_BADGUYS))   -- Doesn't work since Diretide 2020
-			--GameRules:GetGameModeEntity():SetTopBarTeamValue(DOTA_TEAM_GOODGUYS, GetTeamHeroKills(DOTA_TEAM_GOODGUYS)) -- Doesn't work since Diretide 2020
-			GameRules:GetGameModeEntity():SetCustomRadiantScore(GetTeamHeroKills(DOTA_TEAM_GOODGUYS))
-			GameRules:GetGameModeEntity():SetCustomDireScore(GetTeamHeroKills(DOTA_TEAM_BADGUYS))
+			local gamemode = GameRules:GetGameModeEntity()
+			--gamemode:SetTopBarTeamValue(DOTA_TEAM_BADGUYS, GetTeamHeroKills(DOTA_TEAM_BADGUYS))   -- Doesn't work since Diretide 2020
+			--gamemode:SetTopBarTeamValue(DOTA_TEAM_GOODGUYS, GetTeamHeroKills(DOTA_TEAM_GOODGUYS)) -- Doesn't work since Diretide 2020
+			gamemode:SetCustomRadiantScore(GetTeamHeroKills(DOTA_TEAM_GOODGUYS))
+			gamemode:SetCustomDireScore(GetTeamHeroKills(DOTA_TEAM_BADGUYS))
 		end
 	end
 
@@ -540,12 +563,12 @@ function barebones:OnEntityKilled(keys)
 	if killed_unit:IsIllusion() or (killed_unit:IsControllableByAnyPlayer() and not killed_unit:IsRealHero() and not killed_unit:IsCourier() and not killed_unit:IsClone() and not killed_unit:IsTempestDouble()) then
 		local player = killed_unit:GetPlayerOwner()
 		local playerID
-		if player == nil then
+		if not player then
 			playerID = killed_unit:GetPlayerOwnerID()
 		else
 			playerID = player:GetPlayerID()
 		end
-		
+
 		if Selection then
 			-- Without Selection library this will return an error
 			PlayerResource:RemoveFromSelection(playerID, killed_unit)
@@ -580,7 +603,7 @@ function barebones:OnPlayerSelectedCustomTeam(keys)
 	--PrintTable(keys)
 
 	local playerID = keys.player_id
-	local success = (keys.success == 1)
+	local success = keys.success == 1
 	local team = keys.team_id
 end
 
@@ -616,7 +639,7 @@ function barebones:OnPlayerChat(keys)
 	DebugPrint("[BAREBONES] A Player has used the chat")
 	--PrintTable(keys)
 
-	local team_only = keys.teamonly -- true if team only chat
+	local team_only = keys.teamonly == 1
 	local userID = keys.userid
 	local playerID = keys.playerid
 	local text = keys.text

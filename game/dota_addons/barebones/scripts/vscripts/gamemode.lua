@@ -1,5 +1,5 @@
 -- This is the primary barebones gamemode script and should be used to assist in initializing your game mode
-BAREBONES_VERSION = "2.0.16"
+BAREBONES_VERSION = "2.0.17"
 
 -- Selection library (by Noya) provides player selection inspection and management from server lua
 require('libraries/selection')
@@ -42,7 +42,7 @@ end
 function barebones:OnAllPlayersLoaded()
   DebugPrint("[BAREBONES] All Players have loaded into the game.")
   
-  -- Force Random a hero for every player that didnt pick a hero when time runs out
+  -- Force Random a hero for every player that didnt pick a hero when time runs out (we do this so players don't end up without a hero)
   local delay = HERO_SELECTION_TIME + HERO_SELECTION_PENALTY_TIME + STRATEGY_TIME - 0.1
   if ENABLE_BANNING_PHASE then
     delay = delay + BANNING_PHASE_TIME
@@ -245,7 +245,7 @@ function barebones:CaptureGameMode()
 	--gamemode:SetAlwaysShowPlayerNames(true) -- use this when you need to hide real hero names
 	gamemode:SetAnnouncerDisabled(DISABLE_ANNOUNCER)
 
-	if FORCE_PICKED_HERO ~= nil then
+	if FORCE_PICKED_HERO then -- FORCE_PICKED_HERO must be a string name of an existing hero, or there will be a big fat error
 		gamemode:SetCustomGameForceHero(FORCE_PICKED_HERO) -- THIS WILL NOT WORK when "EnablePickRules" is "1" in 'addoninfo.txt' !
 	else
 		gamemode:SetDraftingHeroPickSelectTimeOverride(HERO_SELECTION_TIME)
