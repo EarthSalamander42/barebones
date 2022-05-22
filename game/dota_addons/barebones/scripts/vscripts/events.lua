@@ -117,7 +117,7 @@ function barebones:OnHeroInGame(hero)
 		local monkey_king_soldier_modifiers = {
 			"modifier_monkey_king_fur_army_soldier_hidden",
 			"modifier_monkey_king_fur_army_soldier",
-			"modifier_monkey_king_fur_army_thinker"
+			"modifier_monkey_king_fur_army_thinker",
 			"modifier_monkey_king_fur_army_soldier_inactive",
 			"modifier_monkey_king_fur_army_soldier_in_position",
 		}

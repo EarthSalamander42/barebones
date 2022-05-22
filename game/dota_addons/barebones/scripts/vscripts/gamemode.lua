@@ -285,7 +285,5 @@ function barebones:CaptureGameMode()
 	gamemode:SetCustomGlyphCooldown(CUSTOM_GLYPH_COOLDOWN)
 	gamemode:DisableHudFlip(FORCE_MINIMAP_ON_THE_LEFT)
 
-	if DEFAULT_DOTA_COURIER then
-		gamemode:SetFreeCourierModeEnabled(true) -- without this, passive GPM doesn't work, Thanks Valve
-	end
+	gamemode:SetFreeCourierModeEnabled(true) -- without this, passive GPM doesn't work, Thanks Valve
 end
