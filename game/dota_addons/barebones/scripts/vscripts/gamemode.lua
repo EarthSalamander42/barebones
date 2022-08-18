@@ -99,8 +99,8 @@ function barebones:InitGameMode()
 		GameRules:SetUseCustomHeroXPValues(true)
 	end
 
-	--GameRules:SetGoldPerTick(GOLD_PER_TICK) -- Doesn't work 24.2.2020
-	--GameRules:SetGoldTickTime(GOLD_TICK_TIME) -- Doesn't work 24.2.2020
+	--GameRules:SetGoldPerTick(GOLD_PER_TICK) -- Doesn't work; Last time tested: 24.2.2020
+	--GameRules:SetGoldTickTime(GOLD_TICK_TIME) -- Doesn't work; Last time tested: 24.2.2020
 	GameRules:SetStartingGold(NORMAL_START_GOLD)
 
 	if USE_CUSTOM_HERO_GOLD_BOUNTY then
@@ -207,7 +207,8 @@ function barebones:InitGameMode()
 	DebugPrint("[BAREBONES] Done with setting Filters.")
 
 	-- Global Lua Modifiers
-	LinkLuaModifier("modifier_custom_invulnerable", "modifiers/modifier_custom_invulnerable", LUA_MODIFIER_MOTION_NONE)
+	LinkLuaModifier("modifier_custom_invulnerable", "modifiers/modifier_custom_invulnerable.lua", LUA_MODIFIER_MOTION_NONE)
+	LinkLuaModifier("modifier_custom_passive_gold", "modifiers/modifier_custom_passive_gold_example.lua", LUA_MODIFIER_MOTION_NONE)
 
 	print("[BAREBONES] initialized.")
 	DebugPrint("[BAREBONES] Done loading the game mode!\n\n")

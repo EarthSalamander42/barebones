@@ -111,7 +111,8 @@ function barebones:OnHeroInGame(hero)
 
 	local function IsMonkeyKingClone(unit)
 		if unit.HasModifier == nil then
-			return
+			DebugPrint("[BAREBONES] OnHeroInGame - Spawned hero is not a valid entity")
+			return true
 		end
 
 		local monkey_king_soldier_modifiers = {
@@ -124,6 +125,7 @@ function barebones:OnHeroInGame(hero)
 
 		for _, v in pairs(monkey_king_soldier_modifiers) do
 		  if unit:HasModifier(v) then
+			DebugPrint("[BAREBONES] OnHeroInGame - Spawned hero is a Monkey King soldier")
 			return true
 		  end
 		end
@@ -151,7 +153,6 @@ function barebones:OnHeroInGame(hero)
 				DebugPrint("[BAREBONES] OnHeroInGame - Spawned hero is a Tempest Double")
 				return
 			elseif IsMonkeyKingClone(hero) then
-				DebugPrint("[BAREBONES] OnHeroInGame - Spawned hero is a Monkey King soldier")
 				return
 			end
 			-- Set some hero stuff on first spawn or on every spawn (custom or not)
@@ -169,6 +170,10 @@ function barebones:OnHeroInGame(hero)
 				-- Use 'PlayerResource:ModifyGold(playerID, NORMAL_START_GOLD-600, false, 0)' if GameRules:SetStartingGold breaks again
 				-- If the NORMAL_START_GOLD is less than 600, disable Strategy Time and use 'hero:SetGold(NORMAL_START_GOLD, false)' instead
 				-- Why? Because OnHeroInGame is triggering during PreGame (after Strategy Time) and players can buy items during Strategy Time (starting gold will remain default 600)
+				
+				if ADDITIONAL_GPM then
+					hero:AddNewModifier(hero, nil, "modifier_custom_passive_gold", {})
+				end
 
 				-- Create an item and add it to the player's hero, effectively ensuring they start with the item
 				if ADD_ITEM_TO_HERO_ON_SPAWN then
@@ -478,7 +483,7 @@ function barebones:OnEntityKilled(keys)
 			end
 
 			-- Old Bloodstone respawn reduction (this example doesn't check items in backpack because bloodstone cannot go in backpack)
-			-- for i=DOTA_ITEM_SLOT_1, DOTA_ITEM_SLOT_6 do
+			-- for i = DOTA_ITEM_SLOT_1, DOTA_ITEM_SLOT_6 do
 				-- local item = killed_unit:GetItemInSlot(i)
 				-- if item then
 					-- if item:GetName() == "item_bloodstone" then
@@ -487,7 +492,7 @@ function barebones:OnEntityKilled(keys)
 						-- local reduction_per_charge = item:GetLevelSpecialValueFor("respawn_time_reduction", item:GetLevel() - 1)
 						-- local respawn_reduction = charges_before_death*reduction_per_charge
 						-- respawn_time = math.max(1, respawn_time-respawn_reduction)
-						-- break -- break for loop, to prevent multiple bloodstones granting respawn reduction
+						-- break -- break 'for' loop, to prevent multiple bloodstones granting respawn reduction
 					-- end
 				-- end
 			-- end

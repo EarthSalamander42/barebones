@@ -42,10 +42,10 @@ function PrintTable(t, indent, done)
   end
 end
 
--- Requires an element and a table, returns true if element is in the table.
+-- Requires an element (key) and a table, returns true if element is in the table.
 function TableContains(t, element)
     if t == nil then return false end
-    for k,v in pairs(t) do
+    for k, v in pairs(t) do
         if k == element then
             return true
         end
@@ -54,12 +54,13 @@ function TableContains(t, element)
 end
 
 -- Return length of the table even if the table is nil or empty
+-- # operator will not calculate table length properly if the table contains nil elements
 function TableLength(t)
     if t == nil or t == {} then
         return 0
     end
     local length = 0
-    for k,v in pairs(t) do
+    for k, v in pairs(t) do
         length = length + 1
     end
     return length
@@ -71,7 +72,7 @@ function GetRandomTableElement(t)
     for k in pairs(t) do
         table.insert(keyset, k)
     end
-    -- now you can reliably return a random key
+    -- keyset table doesn't have nil elements
     return t[keyset[RandomInt(1, #keyset)]]
 end
 
@@ -132,7 +133,7 @@ end
 -- Author: Noya
 -- This function un-hides (shows) wearables that were hidden with HideWearables() function.
 function ShowWearables(unit)
-	for i,v in pairs(unit.hiddenWearables) do
+	for k, v in pairs(unit.hiddenWearables) do
 		v:RemoveEffects(EF_NODRAW)
 	end
 end

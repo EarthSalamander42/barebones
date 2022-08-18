@@ -17,8 +17,9 @@ PRE_GAME_TIME = 90.0                    -- How long after showcase time should t
 POST_GAME_TIME = 60.0                   -- How long should we let people stay around before closing the server automatically?
 TREE_REGROW_TIME = 300.0                -- How long should it take individual trees to respawn after being cut down/destroyed?
 
---GOLD_PER_TICK = 100                     -- How much gold should players get per tick? DOESN'T WORK
---GOLD_TICK_TIME = 1.0                    -- How long should we wait in seconds between gold ticks? DOESN'T WORK
+--GOLD_PER_TICK = 100                     -- How much gold should players get per tick? SetGoldTickTime DOESN'T WORK
+--GOLD_TICK_TIME = 1.0                    -- How long should we wait in seconds between gold ticks? SetGoldPerTick DOESN'T WORK
+--ADDITIONAL_GPM = 100                    -- Uncomment this if you want additional gold per minute beside default
 
 NORMAL_START_GOLD = 600                 -- Starting Gold
 
@@ -132,7 +133,6 @@ DISABLE_DAY_NIGHT_CYCLE = false         -- Should we disable the day night cycle
 DISABLE_KILLING_SPREE_ANNOUNCER = false -- Should we disable the killing spree announcer?
 DISABLE_STICKY_ITEM = false             -- Should we disable the sticky item button in the quick buy area?
 ENABLE_PAUSING = true                   -- Should we allow players to pause the game?
-DEFAULT_DOTA_COURIER = true             -- Enable courier for each player with default dota properties
 
 FORCE_MINIMAP_ON_THE_LEFT = false       -- Should we disable hud flip aka force the default dota hud positions? 
 -- Note: Some players have minimap on the right and gold/shop on the left.
