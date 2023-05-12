@@ -64,7 +64,7 @@ LinkLuaModifier("modifier_animation_freeze_stun", "libraries/attachments.lua", L
 
 modifier_animation_freeze_stun = class({})
 
-function modifier_animation_freeze_stun:OnCreated(keys) 
+function modifier_animation_freeze_stun:OnCreated(keys)
 
 end
 
@@ -76,21 +76,19 @@ function modifier_animation_freeze_stun:IsHidden()
   return true
 end
 
-function modifier_animation_freeze_stun:IsDebuff() 
+function modifier_animation_freeze_stun:IsDebuff()
   return false
 end
 
-function modifier_animation_freeze_stun:IsPurgable() 
+function modifier_animation_freeze_stun:IsPurgable()
   return false
 end
 
-function modifier_animation_freeze_stun:CheckState() 
-  local state = {
+function modifier_animation_freeze_stun:CheckState()
+  return {
     [MODIFIER_STATE_FROZEN] = true,
     [MODIFIER_STATE_STUNNED] = true,
   }
-
-  return state
 end
 
 -- Drop out of self-include to prevent execution of timers library and other code in modifier lua VM environment
@@ -145,7 +143,7 @@ function Attachments:start()
   self.gameDir = ""
   self.addonName = ""
   self.initialized = true
-  
+
   self.activated = false
   self.dbFilePath = nil
   self.currentAttach = {}
@@ -163,7 +161,7 @@ function Attachments:start()
 end
 
 function Attachments:ActivateAttachmentSetup()
-  addon = Attachments.addonName
+  local addon = Attachments.addonName
   --[[if addon == nil or addon == "" then
     print("[Attachments.lua] Addon name must be specified.")
     return
@@ -188,7 +186,9 @@ function Attachments:ActivateAttachmentSetup()
       WriteKV(file, "Attachments", {})
       print("[Attachments.lua] Created file: 'dota_addons/" .. addon .. "/scripts/attachments.txt'.")
     end
-    file:close()
+    if file then
+      file:close()
+    end
 
     CustomGameEventManager:RegisterListener("Attachment_DoSphere", Dynamic_Wrap(Attachments, "Attachment_DoSphere"))
     CustomGameEventManager:RegisterListener("Attachment_DoAttach", Dynamic_Wrap(Attachments, "Attachment_DoAttach"))
@@ -210,7 +210,6 @@ end
 
 function Attachments:Attachment_DoSphere(args)
   --DebugPrint('Attachment_DoSphere')
-  --DebugPrintTable(args)
 
   Attachments.doSphere = args.doSphere == 1
 
@@ -219,7 +218,6 @@ end
 
 function Attachments:Attachment_DoAttach(args)
   --DebugPrint('Attachment_DoAttach')
-  --DebugPrintTable(args)
 
   Attachments.doAttach = args.doAttach == 1
 
@@ -228,7 +226,6 @@ end
 
 function Attachments:Attachment_Freeze(args)
   --DebugPrint('Attachment_Freeze')
-  --DebugPrintTable(args)
 
   local unit = EntIndexToHScript(args.index)
   if not unit then
@@ -248,14 +245,13 @@ end
 
 function Attachments:Attachment_UpdateAttach(args)
   DebugPrint('Attachment_UpdateAttach')
-  DebugPrintTable(args)
 
   local unit = EntIndexToHScript(args.index)
   if not unit then
     Notify(args.PlayerID, "Invalid Unit.")
     return
   end
-  
+
   local properties = args.properties
   local unitModel = unit:GetModelName()
   local attach = properties.attach
@@ -286,7 +282,7 @@ function Attachments:Attachment_UpdateAttach(args)
 
   properties = oldProperties
   db[unitModel][attach][model] = properties
-  
+
 
   if not Attachments.currentAttach[args.index] then Attachments.currentAttach[args.index] = {} end
   local prop = Attachments.currentAttach[args.index][attach]
@@ -300,14 +296,13 @@ end
 
 function Attachments:Attachment_SaveAttach(args)
   --DebugPrint('Attachment_SaveAttach')
-  --DebugPrintTable(args)
 
   local unit = EntIndexToHScript(args.index)
   if not unit then
     Notify(args.PlayerID, "Invalid Unit.")
     return
   end
-  
+
   local properties = args.properties
   local unitModel = unit:GetModelName()
   local attach = properties.attach
@@ -326,13 +321,14 @@ function Attachments:Attachment_SaveAttach(args)
   end
 
   local file = io.open(Attachments.dbFilePath, 'w')
-  WriteKV(file, "Attachments", Attachments.attachDB)
-  file:close();
+  if file then
+    WriteKV(file, "Attachments", Attachments.attachDB)
+    file:close()
+  end
 end
 
 function Attachments:Attachment_LoadAttach(args)
   --DebugPrint('Attachment_LoadAttach')
-  --DebugPrintTable(args)
 
   local unit = EntIndexToHScript(args.index)
   if not unit then
@@ -370,14 +366,13 @@ end
 
 function Attachments:Attachment_HideAttach(args)
   --DebugPrint('Attachment_HideAttach')
-  --DebugPrintTable(args)
 
   local unit = EntIndexToHScript(args.index)
   if not unit then
     Notify(args.PlayerID, "Invalid Unit.")
     return
   end
-  
+
   local properties = args.properties
   local attach = properties.attach
 
@@ -396,7 +391,6 @@ end
 
 function Attachments:Attachment_UpdateUnit(args)
   --DebugPrint('Attachment_UpdateUnit')
-  --DebugPrintTable(args)
 
   local unit = EntIndexToHScript(args.index)
   if not unit then
@@ -411,13 +405,11 @@ function Attachments:Attachment_UpdateUnit(args)
     end
   end
 
-  --DebugPrintTable(cosmetics)
   CustomGameEventManager:Send_ServerToPlayer(PlayerResource:GetPlayer(args.PlayerID), "attachment_cosmetic_list", cosmetics )
 end
 
 function Attachments:Attachment_HideCosmetic(args)
   --DebugPrint('Attachment_HideCosmetic')
-  --DebugPrintTable(args)
 
   local unit = EntIndexToHScript(args.index)
   if not unit then
@@ -426,7 +418,7 @@ function Attachments:Attachment_HideCosmetic(args)
   end
 
   local model = args.model;
-  
+
   local cosmetics = {}
   for i,child in ipairs(unit:GetChildren()) do
     if child:GetClassname() == "dota_item_wearable" and child:GetModelName() == model then
@@ -484,7 +476,7 @@ function Attachments:AttachProp(unit, attachPoint, model, scale, properties)
     --local angleSpace = QAngle(properties.QX, properties.QY, properties.QZ)
     local offset = Vector(tonumber(properties.XPos), tonumber(properties.YPos), tonumber(properties.ZPos)) * scale * unit:GetModelScale()
     local animation = properties.Animation
-    
+
     --offset = RotatePosition(Vector(0,0,0), RotationDelta(angleSpace, QAngle(0,0,0)), offset)
 
     --local new_prop = Entities:CreateByClassname("prop_dynamic")
@@ -498,7 +490,7 @@ function Attachments:AttachProp(unit, attachPoint, model, scale, properties)
 
     local angles = unit:GetAttachmentAngles(attach)
 
-    
+
     angles = QAngle(angles.x, angles.y, angles.z)
     --angles = RotationDelta(angles,QAngle(pitch, yaw, roll))
     --print(prop:GetAngles())
@@ -522,7 +514,7 @@ function Attachments:AttachProp(unit, attachPoint, model, scale, properties)
     if Attachments.doAttach then
       if attachPoint == "attach_origin" then
         prop:SetParent(unit, "")
-      else        
+      else
         prop:SetParent(unit, attachPoint)
       end
     end
@@ -539,7 +531,7 @@ function Attachments:AttachProp(unit, attachPoint, model, scale, properties)
         for k,ent_point in pairs(control_points) do
           ParticleManager:SetParticleControlEnt(prop.fx, tonumber(k), prop, PATTACH_POINT_FOLLOW, ent_point, prop:GetAbsOrigin(), true)
         end
-      end    
+      end
     end
 
 

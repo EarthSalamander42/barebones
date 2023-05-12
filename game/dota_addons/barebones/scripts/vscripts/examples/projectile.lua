@@ -52,7 +52,7 @@ local projectile = {
   --fRadiusStep = 10,
   --bUseFindUnitsInRadius = false,
 
-  UnitTest = function(self, unit) return unit:GetUnitName() ~= "npc_dummy_unit" and unit:GetTeamNumber() ~= hero:GetTeamNumber() end,
+  UnitTest = function(self, unit) return unit:GetUnitName() ~= "npc_dota_custom_dummy_unit" and unit:GetTeamNumber() ~= hero:GetTeamNumber() end,
   OnUnitHit = function(self, unit) 
     print ('HIT UNIT: ' .. unit:GetUnitName())
   end,

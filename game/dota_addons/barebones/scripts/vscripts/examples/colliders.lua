@@ -3,6 +3,8 @@ if hero == nil then
   Physics:Unit(hero)
 end
 
+local dummy_blank = "npc_dota_custom_illusion_base" --"npc_dummy_blank"
+
 --[[if true then
   boxcollider4 = Physics:AddCollider("aabox2", Physics:ColliderFromProfile("aaboxreflect"))
   boxcollider4.box = {Vector(-400,-800,0), Vector(-200,-200,500)}
@@ -15,27 +17,26 @@ end]]
 
 if testCount == nil then
   if not enigma then
-    enigma = CreateUnitByName('npc_dummy_unit', Vector(0,0,0), true, hero, hero, hero:GetTeamNumber())
+    enigma = CreateUnitByName('npc_dota_custom_dummy_unit', Vector(0,0,0), true, hero, hero, hero:GetTeamNumber())
     enigma:FindAbilityByName("reflex_dummy_unit"):SetLevel(1)
     enigma:SetModel('models/heroes/enigma/enigma.vmdl')
     enigma:SetOriginalModel('models/heroes/enigma/enigma.vmdl')
 
     Physics:Unit(enigma)
 
-    planet1 = CreateUnitByName('npc_dummy_unit', Vector(0,0,0), true, hero, hero, hero:GetTeamNumber())
+    planet1 = CreateUnitByName('npc_dota_custom_dummy_unit', Vector(0,0,0), true, hero, hero, hero:GetTeamNumber())
     planet1:FindAbilityByName("reflex_dummy_unit"):SetLevel(1)
     planet1:SetModel('models/props_gameplay/rune_doubledamage01.vmdl')
     planet1:SetOriginalModel('models/props_gameplay/rune_doubledamage01.vmdl')
     Physics:Unit(planet1)
 
-
-    planet2 = CreateUnitByName('npc_dummy_unit', Vector(0,0,0), true, hero, hero, hero:GetTeamNumber())
+    planet2 = CreateUnitByName('npc_dota_custom_dummy_unit', Vector(0,0,0), true, hero, hero, hero:GetTeamNumber())
     planet2:FindAbilityByName("reflex_dummy_unit"):SetLevel(1)
     planet2:SetModel('models/props_gameplay/rune_haste01.vmdl')
     planet2:SetOriginalModel('models/props_gameplay/rune_haste01.vmdl')
     Physics:Unit(planet2)
 
-    planet3 = CreateUnitByName('npc_dummy_unit', Vector(0,0,0), true, hero, hero, hero:GetTeamNumber())
+    planet3 = CreateUnitByName('npc_dota_custom_dummy_unit', Vector(0,0,0), true, hero, hero, hero:GetTeamNumber())
     planet3:FindAbilityByName("reflex_dummy_unit"):SetLevel(1)
     planet3:SetModel('models/props_gameplay/rune_illusion01.vmdl')
     planet3:SetOriginalModel('models/props_gameplay/rune_illusion01.vmdl')
@@ -52,7 +53,7 @@ if testCount == nil then
     collider.force = 5000
     collider.linear = false
     collider.test = function(self, collider, collided)
-      return IsPhysicsUnit(collided) and collided.GetUnitName and collided:GetUnitName() == "npc_dummy_unit"
+      return IsPhysicsUnit(collided) and collided.GetUnitName and collided:GetUnitName() == "npc_dota_custom_dummy_unit"
     end
 
     planet1:SetAbsOrigin(Vector(-500,0,400))
@@ -78,7 +79,7 @@ if testCount == 0 then
   planet3:RemoveSelf()
   if testUnit == nil then
     --PrecacheUnitByNameAsync("npc_dota_hero_slark", function(...) end)
-    testUnit = CreateUnitByName('npc_dummy_blank', hero:GetAbsOrigin(), true, hero, hero, hero:GetTeamNumber())
+    testUnit = CreateUnitByName(dummy_blank, hero:GetAbsOrigin(), true, hero, hero, hero:GetTeamNumber())
     testUnit:SetModel('models/heroes/viper/viper.vmdl')
     testUnit:SetOriginalModel('models/heroes/viper/viper.vmdl')
 
@@ -101,7 +102,7 @@ if testCount == 0 then
 
   if testUnit2 == nil then
     --PrecacheUnitByNameAsync("npc_dota_hero_slark", function(...) end)
-    testUnit2 = CreateUnitByName('npc_dummy_blank', hero:GetAbsOrigin(), true, hero, hero, hero:GetTeamNumber())
+    testUnit2 = CreateUnitByName(dummy_blank, hero:GetAbsOrigin(), true, hero, hero, hero:GetTeamNumber())
     --testUnit2:SetModel('models/heroes/viper/viper.vmdl')
     --testUnit2:SetOriginalModel('models/heroes/viper/viper.vmdl')
     testUnit2:SetModel('models/heroes/abaddon/abaddon.vmdl')
@@ -136,14 +137,6 @@ if testCount == 0 then
     return IsPhysicsUnit(unit)
   end
   boxcollider.draw = {color = Vector(50,200,50), alpha = 5}
-  units = {}
-  --[[for i=1,4 do
-    units[i] = CreateUnitByName('npc_dummy_unit', hero:GetAbsOrigin(), true, hero, hero, hero:GetTeamNumber())
-    --units[i]:FindAbilityByName("reflex_dummy_unit"):SetLevel(1)
-    units[i]:SetModel("models/props_gameplay/rune_doubledamage01.vmdl")
-    units[i]:SetOriginalModel("models/props_gameplay/rune_doubledamage01.vmdl")
-    units[i]:AddNewModifier(units[i], nil, "modifier_phased", {})
-  end]]
 
   Physics:RemoveCollider("testbox2")
   boxcollider2 = Physics:AddCollider("testbox2", Physics:ColliderFromProfile("boxreflect"))
@@ -171,7 +164,7 @@ if testCount == 3 then
   hero:RemoveCollider()
   Timers:CreateTimer("timer", {
     callback = function()
-      local unit = CreateUnitByName('npc_dummy_unit', hero:GetAbsOrigin() + hero:GetForwardVector() * 100, true, hero, hero, hero:GetTeamNumber())
+      local unit = CreateUnitByName('npc_dota_custom_dummy_unit', hero:GetAbsOrigin() + hero:GetForwardVector() * 100, true, hero, hero, hero:GetTeamNumber())
       unit:FindAbilityByName("reflex_dummy_unit"):SetLevel(1)
       unit:SetModel("models/props_gameplay/rune_doubledamage01.vmdl")
       unit:SetOriginalModel("models/props_gameplay/rune_doubledamage01.vmdl")
@@ -184,7 +177,7 @@ if testCount == 3 then
       projCollider.draw = {color=Vector(50,50,200), alpha=0}
       projCollider.radius = 100
       projCollider.test = function(self, collider, collided)
-        return IsPhysicsUnit(collided) and collided.GetUnitName ~= nil and collided:GetUnitName() == "npc_dummy_blank"
+        return IsPhysicsUnit(collided) and collided.GetUnitName ~= nil and collided:GetUnitName() == dummy_blank
       end
 
       --unit:SetPhysicsVelocityMax(1000)

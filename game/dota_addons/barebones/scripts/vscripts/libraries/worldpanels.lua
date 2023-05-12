@@ -180,7 +180,7 @@ function WorldPanels:CreateWorldPanel(pids, conf)
     position =          conf.position,
     entity =            ei,
     offsetX =           conf.offsetX,
-    offsetX =           conf.offsetY,
+    offsetY =           conf.offsetY,
     entityHeight =      conf.entityHeight,
     edge =              conf.edgePadding,
     data =              conf.data,

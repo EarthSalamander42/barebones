@@ -79,13 +79,17 @@ end
 
 function chaos_knight_reality_rift_barebones:OnAbilityPhaseInterrupted()
 	local caster = self:GetCaster()
-	for _, fx in ipairs(self.FX) do
-		ParticleManager:DestroyParticle(fx, false)
-		ParticleManager:ReleaseParticleIndex(fx)
+	for _, fx in pairs(self.FX) do
+		if fx then
+			ParticleManager:DestroyParticle(fx, false)
+			ParticleManager:ReleaseParticleIndex(fx)
+		end
 	end
-	for _, illusion in ipairs(self.illusions) do
-		if caster ~= illusion and illusion:IsIllusion() and illusion:GetPlayerOwnerID() == caster:GetPlayerOwnerID() then
-			illusion:RemoveGesture(ACT_DOTA_OVERRIDE_ABILITY_2)
+	for _, illusion in pairs(self.illusions) do
+		if not illusion:IsNull() then
+			if caster ~= illusion and illusion:IsIllusion() and illusion:GetPlayerOwnerID() == caster:GetPlayerOwnerID() then
+				illusion:RemoveGesture(ACT_DOTA_OVERRIDE_ABILITY_2)
+			end
 		end
 	end
 
@@ -97,8 +101,11 @@ function chaos_knight_reality_rift_barebones:OnSpellStart()
 	local caster = self:GetCaster()
 	local target = self:GetCursorTarget()
 
-	for _, fx in ipairs(self.FX) do
-		ParticleManager:ReleaseParticleIndex(fx)
+	for _, fx in pairs(self.FX) do
+		if fx then
+			--ParticleManager:DestroyParticle(fx, true)
+			ParticleManager:ReleaseParticleIndex(fx)
+		end
 	end
 
 	local duration = self:GetSpecialValueFor("reduction_duration")
@@ -121,11 +128,13 @@ function chaos_knight_reality_rift_barebones:OnSpellStart()
 		
 		caster:MoveToTargetToAttack(target)			-- MoveToTargetToAttack exists only on Server
 		
-		for _, illusion in ipairs(self.illusions) do
-			if caster ~= illusion and illusion:IsIllusion() and illusion:GetPlayerOwnerID() == caster:GetPlayerOwnerID() then
-				FindClearSpaceForUnit(illusion, self.end_position, true)
-				illusion:FaceTowards(target:GetAbsOrigin())
-				illusion:MoveToTargetToAttack(target)
+		for _, illusion in pairs(self.illusions) do
+			if not illusion:IsNull() then
+				if caster ~= illusion and illusion:IsIllusion() and illusion:GetPlayerOwnerID() == caster:GetPlayerOwnerID() then
+					FindClearSpaceForUnit(illusion, self.end_position, true)
+					illusion:FaceTowards(target:GetAbsOrigin())
+					illusion:MoveToTargetToAttack(target)
+				end
 			end
 		end
 	end

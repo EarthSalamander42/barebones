@@ -15,24 +15,21 @@ end
 function detonator_conjure_image:OnSpellStart()
 	local target = self:GetCursorTarget()
 	local caster = self:GetCaster()
-	
-	if target == nil then
-		return nil
+
+	if target:IsNull() then
+		return
 	end
-	
-	if IsServer() then
-		local caster_team = caster:GetTeamNumber()
-		-- Checking if target has spell block, if target has spell block, there is no need to execute the spell
-		if (not target:TriggerSpellAbsorb(self)) or (target:GetTeamNumber() == caster_team) then
-			-- Target is a friend or an enemy that doesn't have Spell Block
-			local duration = self:GetSpecialValueFor("duration")
-			local damage_dealt = self:GetSpecialValueFor("illusion_damage_out")
-			local damage_taken = self:GetSpecialValueFor("illusion_damage_in")
-			-- Use function from custom_illusions.lua
-			local custom_illusion = target:CreateIllusion(caster, self, duration, nil, damage_dealt, damage_taken, true, nil)
-			-- Sound on the target
-			target:EmitSound("Hero_Terrorblade.ConjureImage")
-		end
+
+	-- Checking if target has spell block, if target has spell block, there is no need to execute the spell
+	if (not target:TriggerSpellAbsorb(self)) or (target:GetTeamNumber() == caster:GetTeamNumber()) then
+		-- Target is a friend or an enemy that doesn't have Spell Block
+		local duration = self:GetSpecialValueFor("duration")
+		local damage_dealt = self:GetSpecialValueFor("illusion_damage_out")
+		local damage_taken = self:GetSpecialValueFor("illusion_damage_in")
+		-- Use function from custom_illusions.lua
+		local custom_illusion = target:CreateIllusion(caster, self, duration, nil, damage_dealt, damage_taken, true, 1)
+		-- Sound on the target
+		target:EmitSound("Hero_Terrorblade.ConjureImage")
 	end
 end
 
