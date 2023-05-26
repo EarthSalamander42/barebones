@@ -41,26 +41,6 @@ end
 ]]
 function barebones:OnAllPlayersLoaded()
   DebugPrint("[BAREBONES] All Players have loaded into the game.")
-  
-  -- Force Random a hero for every player that didnt pick a hero when time runs out (we do this so players don't end up without a hero)
-  local delay = HERO_SELECTION_TIME + HERO_SELECTION_PENALTY_TIME + STRATEGY_TIME - 0.1
-  if ENABLE_BANNING_PHASE then
-    delay = delay + BANNING_PHASE_TIME
-  end
-  Timers:CreateTimer(delay, function()
-    for playerID = 0, DOTA_MAX_TEAM_PLAYERS-1 do
-      if PlayerResource:IsValidPlayerID(playerID) then
-        -- If this player still hasn't picked a hero, random one
-        -- PlayerResource:IsConnected(index) is custom-made! Can be found in 'player_resource.lua' library
-        if not PlayerResource:HasSelectedHero(playerID) and PlayerResource:IsConnected(playerID) and not PlayerResource:IsBroadcaster(playerID) then
-          PlayerResource:GetPlayer(playerID):MakeRandomHeroSelection() -- this will cause an error if player is disconnected, that's why we check if player is connected
-          PlayerResource:SetHasRandomed(playerID)
-          PlayerResource:SetCanRepick(playerID, false)
-          DebugPrint("[BAREBONES] Randomed a hero for a player number "..playerID)
-        end
-      end
-    end
-  end)
 end
 
 --[[
@@ -171,7 +151,10 @@ function barebones:InitGameMode()
 
 	-- Change random seed for math.random function
 	local timeTxt = string.gsub(string.gsub(GetSystemTime(), ':', ''), '0','')
-	math.randomseed(tonumber(timeTxt))
+	local timeNumber = tonumber(timeTxt)
+	if timeNumber then
+		math.randomseed(timeNumber) -- use 'RandomInt' or 'RandomFloat' instead of math.random
+	end
 
 	DebugPrint("[BAREBONES] Setting Filters.")
 

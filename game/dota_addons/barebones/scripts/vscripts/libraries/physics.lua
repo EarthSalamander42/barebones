@@ -1968,7 +1968,7 @@ function Physics:PhysicsTestCommand(...)
     -- Process map
     local addString = function (stack, s)
         table.insert(stack, s)    -- push 's' into the the stack
-        for i=table.getn(stack)-1, 1, -1 do
+        for i = #stack-1, 1, -1 do
           if string.len(stack[i]) > string.len(stack[i+1]) then
             break
           end

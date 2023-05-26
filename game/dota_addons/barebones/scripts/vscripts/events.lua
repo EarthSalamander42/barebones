@@ -37,6 +37,21 @@ function barebones:OnGameRulesStateChange(keys)
 	elseif new_state == DOTA_GAMERULES_STATE_STRATEGY_TIME then
 		DebugPrint("[BAREBONES] Game State changed to: DOTA_GAMERULES_STATE_STRATEGY_TIME")
 
+		-- Force Random a hero for every player that didnt picked or randomed a hero 
+		-- We do this as a failsafe so players don't end up without a hero
+		for playerID = 0, DOTA_MAX_TEAM_PLAYERS-1 do
+			if PlayerResource:IsValidPlayerID(playerID) and PlayerResource:IsValidPlayer(playerID) then
+				-- If this player still hasn't picked a hero, random one
+				-- PlayerResource:IsConnected(index) is custom-made! Can be found in 'player_resource.lua' library
+				if not PlayerResource:HasSelectedHero(playerID) and PlayerResource:IsConnected(playerID) then
+					PlayerResource:GetPlayer(playerID):MakeRandomHeroSelection() -- this will cause an error if player is disconnected, that's why we check if player is connected
+					PlayerResource:SetHasRandomed(playerID)
+					PlayerResource:SetCanRepick(playerID, false)
+					DebugPrint("[BAREBONES] Randomed a hero for a player number "..playerID)
+				end
+			end
+		end
+
 	elseif new_state == DOTA_GAMERULES_STATE_TEAM_SHOWCASE then
 		DebugPrint("[BAREBONES] Game State changed to: DOTA_GAMERULES_STATE_TEAM_SHOWCASE")
 
