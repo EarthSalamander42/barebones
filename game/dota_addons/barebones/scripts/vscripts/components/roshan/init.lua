@@ -1,3 +1,7 @@
+-- Sponsored by Dota 2 Skirmish, dota2skirmish.com
+-- Author: EarthSalamander42
+-- Date: 31/07/2023
+
 if not Roshan then
 	Roshan = class({})
 
