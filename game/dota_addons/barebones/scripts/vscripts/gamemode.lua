@@ -11,13 +11,21 @@ require('events')
 -- filters.lua
 require('filters')
 
+if USE_CUSTOM_ROSHAN then
+	require('components/roshan/init')
+end
+
+if USE_CUSTOM_TORMENTOR then
+	require('components/tormentor/init')
+end
+
 --[[
   This function should be used to set up Async precache calls at the beginning of the gameplay.
 
   In this function, place all of your PrecacheItemByNameAsync and PrecacheUnitByNameAsync.  These calls will be made
   after all players have loaded in, but before they have selected their heroes. PrecacheItemByNameAsync can also
-  be used to precache dynamically-added datadriven abilities instead of items.  PrecacheUnitByNameAsync will 
-  precache the precache{} block statement of the unit and all precache{} block statements for every Ability# 
+  be used to precache dynamically-added datadriven abilities instead of items.  PrecacheUnitByNameAsync will
+  precache the precache{} block statement of the unit and all precache{} block statements for every Ability#
   defined on the unit.
 
   This function should only be called once.  If you want to/need to precache more items/abilities/units at a later
@@ -40,27 +48,27 @@ end
   It can be used to initialize non-hero player state or adjust the hero selection (i.e. force random etc)
 ]]
 function barebones:OnAllPlayersLoaded()
-  DebugPrint("[BAREBONES] All Players have loaded into the game.")
-  
-  -- Force Random a hero for every player that didnt pick a hero when time runs out (we do this so players don't end up without a hero)
-  local delay = HERO_SELECTION_TIME + HERO_SELECTION_PENALTY_TIME + STRATEGY_TIME - 0.1
-  if ENABLE_BANNING_PHASE then
-    delay = delay + BANNING_PHASE_TIME
-  end
-  Timers:CreateTimer(delay, function()
-    for playerID = 0, DOTA_MAX_TEAM_PLAYERS-1 do
-      if PlayerResource:IsValidPlayerID(playerID) then
-        -- If this player still hasn't picked a hero, random one
-        -- PlayerResource:IsConnected(index) is custom-made! Can be found in 'player_resource.lua' library
-        if not PlayerResource:HasSelectedHero(playerID) and PlayerResource:IsConnected(playerID) and not PlayerResource:IsBroadcaster(playerID) then
-          PlayerResource:GetPlayer(playerID):MakeRandomHeroSelection() -- this will cause an error if player is disconnected, that's why we check if player is connected
-          PlayerResource:SetHasRandomed(playerID)
-          PlayerResource:SetCanRepick(playerID, false)
-          DebugPrint("[BAREBONES] Randomed a hero for a player number "..playerID)
-        end
-      end
-    end
-  end)
+	DebugPrint("[BAREBONES] All Players have loaded into the game.")
+
+	-- Force Random a hero for every player that didnt pick a hero when time runs out (we do this so players don't end up without a hero)
+	local delay = HERO_SELECTION_TIME + HERO_SELECTION_PENALTY_TIME + STRATEGY_TIME - 0.1
+	if ENABLE_BANNING_PHASE then
+		delay = delay + BANNING_PHASE_TIME
+	end
+	Timers:CreateTimer(delay, function()
+		for playerID = 0, DOTA_MAX_TEAM_PLAYERS - 1 do
+			if PlayerResource:IsValidPlayerID(playerID) then
+				-- If this player still hasn't picked a hero, random one
+				-- PlayerResource:IsConnected(index) is custom-made! Can be found in 'player_resource.lua' library
+				if not PlayerResource:HasSelectedHero(playerID) and PlayerResource:IsConnected(playerID) and not PlayerResource:IsBroadcaster(playerID) then
+					PlayerResource:GetPlayer(playerID):MakeRandomHeroSelection() -- this will cause an error if player is disconnected, that's why we check if player is connected
+					PlayerResource:SetHasRandomed(playerID)
+					PlayerResource:SetCanRepick(playerID, false)
+					DebugPrint("[BAREBONES] Randomed a hero for a player number " .. playerID)
+				end
+			end
+		end
+	end)
 end
 
 --[[
@@ -116,7 +124,7 @@ function barebones:InitGameMode()
 
 	-- This is multi-team configuration stuff
 	if USE_AUTOMATIC_PLAYERS_PER_TEAM then
-		local num = math.floor(10/MAX_NUMBER_OF_TEAMS)
+		local num = math.floor(10 / MAX_NUMBER_OF_TEAMS)
 		local count = 0
 		for team, number in pairs(TEAM_COLORS) do
 			if count >= MAX_NUMBER_OF_TEAMS then
@@ -170,14 +178,14 @@ function barebones:InitGameMode()
 	ListenToGameEvent("dota_npc_goal_reached", Dynamic_Wrap(barebones, 'OnNPCGoalReached'), self)
 
 	-- Change random seed for math.random function
-	local timeTxt = string.gsub(string.gsub(GetSystemTime(), ':', ''), '0','')
+	local timeTxt = string.gsub(string.gsub(GetSystemTime(), ':', ''), '0', '')
 	math.randomseed(tonumber(timeTxt))
 
 	DebugPrint("[BAREBONES] Setting Filters.")
 
 	local gamemode = GameRules:GetGameModeEntity()
 
-	-- Setting the Order filter 
+	-- Setting the Order filter
 	gamemode:SetExecuteOrderFilter(Dynamic_Wrap(barebones, "OrderFilter"), self)
 
 	-- Setting the Damage filter
@@ -212,7 +220,7 @@ function barebones:InitGameMode()
 
 	print("[BAREBONES] initialized.")
 	DebugPrint("[BAREBONES] Done loading the game mode!\n\n")
-	
+
 	-- Increase/decrease maximum item limit per hero
 	Convars:SetInt('dota_max_physical_items_purchase_limit', 64)
 end
