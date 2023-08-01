@@ -9,31 +9,28 @@ function modifier_custom_invulnerable:IsPurgable()
 end
 
 function modifier_custom_invulnerable:DeclareFunctions()
-	local funcs = {
+	return {
 		MODIFIER_PROPERTY_ABSOLUTE_NO_DAMAGE_MAGICAL,
 		MODIFIER_PROPERTY_ABSOLUTE_NO_DAMAGE_PHYSICAL,
 		MODIFIER_PROPERTY_ABSOLUTE_NO_DAMAGE_PURE,
 	}
-
-	return funcs
 end
 
-function modifier_custom_invulnerable:GetAbsoluteNoDamageMagical(params)
+function modifier_custom_invulnerable:GetAbsoluteNoDamageMagical()
 	return 1
 end
 
-function modifier_custom_invulnerable:GetAbsoluteNoDamagePhysical(params)
+function modifier_custom_invulnerable:GetAbsoluteNoDamagePhysical()
 	return 1
 end
 
-function modifier_custom_invulnerable:GetAbsoluteNoDamagePure(params)
+function modifier_custom_invulnerable:GetAbsoluteNoDamagePure()
 	return 1
 end
 
-function modifier_custom_invulnerable:CheckState() 
-  local state = {
+function modifier_custom_invulnerable:CheckState()
+  return {
     [MODIFIER_STATE_INVULNERABLE] = true,
     [MODIFIER_STATE_NO_HEALTH_BAR] = true
   }
-  return state
 end

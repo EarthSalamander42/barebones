@@ -10,14 +10,9 @@
 -- custom illusions are missing talent trees (but visually only)
 if CDOTA_BaseNPC then
   function CDOTA_BaseNPC:CreateIllusion(caster, ability, duration, position, damage_dealt, damage_taken, controllable, method)
-	if caster == nil or ability == nil or duration == nil then
+	if caster:IsNull() or ability:IsNull() or duration == nil then
 		print("caster, ability and duration need to be defined for CreateIllusion!")
-		return nil
-	end
-
-	if self == nil then
-		print("CDOTA_BaseNPC for CreateIllusion is nil.")
-		return nil
+		return
 	end
 
 	local playerID = caster:GetPlayerID()
@@ -28,6 +23,7 @@ if CDOTA_BaseNPC then
 	local origin = position or self:GetAbsOrigin() + RandomVector(150)
 	local illusion_damage_dealt = damage_dealt or 0
 	local illusion_damage_taken = damage_taken or 0
+	local unit_ability_count = math.max(self:GetAbilityCount(), 32)
 
 	if controllable == nil then
 		controllable = true
@@ -39,28 +35,33 @@ if CDOTA_BaseNPC then
 
 	-- Modifiers that we want to apply but don't have AllowIllusionDuplicate or their GetRemainingTime is 0
 	local wanted_modifiers = {
-	"modifier_item_armlet_unholy_strength",
-	"modifier_alchemist_chemical_rage",
-	"modifier_terrorblade_metamorphosis"
+		"modifier_item_armlet_unholy_strength",
+		"modifier_alchemist_chemical_rage",
+		"modifier_terrorblade_metamorphosis"
 	}
 
 	-- Modifiers that we DON'T want to apply - modifiers that cause bugs
 	local modifier_ignore_list = {
-	"modifier_terrorblade_metamorphosis_transform_aura",
-	"modifier_terrorblade_metamorphosis_transform_aura_applier",
-	"modifier_meepo_divided_we_stand"
+		"modifier_terrorblade_metamorphosis_transform_aura",
+		"modifier_terrorblade_metamorphosis_transform_aura_applier",
+		"modifier_meepo_divided_we_stand"
 	}
 
 	-- Abilities that cause bugs
 	local ability_ignore_list = {
-	"meepo_divided_we_stand",
-	"skeleton_king_reincarnation",
-	"special_bonus_reincarnation_200",
-	"roshan_spell_block",
-	"roshan_bash",
-	"roshan_slam",
-	"roshan_inherent_buffs",
-	"roshan_devotion"
+		"meepo_divided_we_stand",
+		"skeleton_king_reincarnation",
+		"special_bonus_reincarnation_200",
+		"roshan_spell_block",
+		"roshan_bash",
+		"roshan_slam",
+		"roshan_inherent_buffs",
+		"roshan_devotion",
+		"ability_capture",
+		"abyssal_underlord_portal_warp",
+		"twin_gate_portal_warp",
+		"ability_lamp_use",
+		"ability_pluck_famango",
 	}
 
 	local illusion
@@ -68,11 +69,6 @@ if CDOTA_BaseNPC then
 		if self:IsHero() then
 			-- CDOTA_BaseNPC is a hero or an illusion (of a hero or a creep), that's how IsHero() works -> weird I know
 			local unit_level = self:GetLevel()
-			local unit_ability_count = self:GetAbilityCount()
-
-			if unit_ability_count < 17 then
-				unit_ability_count = 17
-			end
 
 			-- handle_UnitOwner needs to be nil, else it will crash the game.
 			illusion = CreateUnitByName(unit_name, origin, true, caster, nil, caster:GetTeamNumber())
@@ -84,13 +80,13 @@ if CDOTA_BaseNPC then
 			FindClearSpaceForUnit(illusion, origin, false)
 
 			-- Level Up the illusion to the same level as the hero
-			for i=1,unit_level-1 do
+			for i = 1, unit_level-1 do
 				illusion:HeroLevelUp(false) -- false because we don't want to see level up effects
 			end
 
 			-- Set the skill points to 0 and learn the skills of the caster
 			illusion:SetAbilityPoints(0)
-			for ability_slot=0, unit_ability_count-1 do
+			for ability_slot = 0, unit_ability_count-1 do
 				local current_ability = self:GetAbilityByIndex(ability_slot)
 				if current_ability then 
 					local current_ability_level = current_ability:GetLevel()
@@ -98,7 +94,7 @@ if CDOTA_BaseNPC then
 					local illusion_ability = illusion:FindAbilityByName(current_ability_name)
 					if illusion_ability then
 						local skip = false
-						for i=1, #ability_ignore_list do
+						for i = 1, #ability_ignore_list do
 							if current_ability_name == ability_ignore_list[i] then
 								skip = true
 							end
@@ -113,7 +109,7 @@ if CDOTA_BaseNPC then
 			end
 
 			-- Recreate the items of the CDOTA_BaseNPC to be the same on illusion
-			for item_slot=DOTA_ITEM_SLOT_1, DOTA_ITEM_SLOT_9 do
+			for item_slot = DOTA_ITEM_SLOT_1, DOTA_ITEM_SLOT_9 do
 				local item = self:GetItemInSlot(item_slot)
 				if item then
 					local item_name = item:GetName()
@@ -132,9 +128,10 @@ if CDOTA_BaseNPC then
 
 			for _, modifier in ipairs(self:FindAllModifiers()) do
 				local modifier_name = modifier:GetName()
+				-- This doesn't work for vanilla modifiers because they don't have AllowIllusionDuplicate
 				if modifier.AllowIllusionDuplicate and modifier:AllowIllusionDuplicate() and modifier:GetDuration() ~= -1 then
 					local skip = false
-					for i=1, #modifier_ignore_list do
+					for i = 1, #modifier_ignore_list do
 						if modifier_name == modifier_ignore_list[i] then
 							skip = true
 						end
@@ -144,7 +141,7 @@ if CDOTA_BaseNPC then
 					end
 				end
 
-				for i=1, #wanted_modifiers do
+				for i = 1, #wanted_modifiers do
 					if modifier_name == wanted_modifiers[i] then
 						illusion:AddNewModifier(modifier:GetCaster(), modifier:GetAbility(), modifier_name, { duration = modifier:GetDuration() })
 					end
@@ -174,7 +171,7 @@ if CDOTA_BaseNPC then
 			illusion:SetOwner(owner)
 			FindClearSpaceForUnit(illusion, origin, false)
 
-			for ability_slot=0, 15 do
+			for ability_slot = 0, unit_ability_count-1 do
 				local current_ability = self:GetAbilityByIndex(ability_slot)
 				if current_ability then 
 					local current_ability_level = current_ability:GetLevel()
@@ -182,7 +179,7 @@ if CDOTA_BaseNPC then
 					local illusion_ability = illusion:FindAbilityByName(current_ability_name)
 					if illusion_ability then
 						local skip = false
-						for i=1, #ability_ignore_list do
+						for i = 1, #ability_ignore_list do
 							if illusion_ability:GetAbilityName() == ability_ignore_list[i] then
 								skip = true
 							end
@@ -200,7 +197,7 @@ if CDOTA_BaseNPC then
 				local modifier_name = modifier:GetName()
 				if modifier.AllowIllusionDuplicate and modifier:AllowIllusionDuplicate() and modifier:GetDuration() ~= -1 then
 					local skip = false
-					for i=1, #modifier_ignore_list do
+					for i = 1, #modifier_ignore_list do
 						if modifier_name == modifier_ignore_list[i] then
 							skip = true
 						end
@@ -210,7 +207,7 @@ if CDOTA_BaseNPC then
 					end
 				end
 
-				for i=1, #wanted_modifiers do
+				for i = 1, #wanted_modifiers do
 					if modifier_name == wanted_modifiers[i] then
 						illusion:AddNewModifier(modifier:GetCaster(), modifier:GetAbility(), modifier_name, { duration = modifier:GetDuration() })
 					end
@@ -234,8 +231,7 @@ if CDOTA_BaseNPC then
 
 		FindClearSpaceForUnit(illusion, origin, false)
 
-		local unit_ability_count = self:GetAbilityCount()
-		for ability_slot=0, unit_ability_count-1 do
+		for ability_slot = 0, unit_ability_count-1 do
 			local current_ability = self:GetAbilityByIndex(ability_slot)
 			if current_ability then 
 				local current_ability_level = current_ability:GetLevel()
@@ -284,7 +280,7 @@ if CDOTA_BaseNPC then
 				local modifier_name = modifier:GetName()
 				if modifier.AllowIllusionDuplicate and modifier:AllowIllusionDuplicate() then
 					local skip = false
-					for i=1, #modifier_ignore_list do
+					for i = 1, #modifier_ignore_list do
 						if modifier_name == modifier_ignore_list[i] then
 							skip = true
 						end
@@ -294,14 +290,14 @@ if CDOTA_BaseNPC then
 					end
 				end
 
-				for i=1, #wanted_modifiers do
+				for i = 1, #wanted_modifiers do
 					if modifier_name == wanted_modifiers[i] then
 						illusion:AddNewModifier(modifier:GetCaster(), modifier:GetAbility(), modifier_name, { duration = modifier:GetDuration() })
 					end
 				end
 			end
 
-		for item_slot=DOTA_ITEM_SLOT_1, DOTA_ITEM_SLOT_9 do
+		for item_slot = DOTA_ITEM_SLOT_1, DOTA_ITEM_SLOT_9 do
 			local item = self:GetItemInSlot(item_slot)
 			if item then
 				local item_name = item:GetName()

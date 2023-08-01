@@ -10,6 +10,8 @@
 
 --To Activate these scripted animation overrides, rename the "animation_example" folder to "animation"
 
+local model = model
+
 model:CreateWeightlist( 
   "upperBody",
   {

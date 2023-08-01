@@ -31,11 +31,9 @@ end
 modifier_chaos_knight_reality_rift_custom.OnRefresh = modifier_chaos_knight_reality_rift_custom.OnCreated
 
 function modifier_chaos_knight_reality_rift_custom:DeclareFunctions()
-	local funcs = {
+	return {
 		MODIFIER_PROPERTY_PHYSICAL_ARMOR_BONUS,
 	}
-
-	return funcs
 end
 
 function modifier_chaos_knight_reality_rift_custom:GetModifierPhysicalArmorBonus()

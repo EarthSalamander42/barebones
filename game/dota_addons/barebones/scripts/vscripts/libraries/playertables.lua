@@ -53,7 +53,7 @@ PLAYERTABLES_VERSION = "0.90"
     -void PlayerTables.GetTableValue(tableName, keyName)
       Returns the current value for the key given by "keyName" if it exists on the table given by "tableName".
       Returns null if no table exists, or undefined if the key does not exist.
-    -int PlayerTables.SubscribeNetTableListener(tableName, callback) 
+    -int PlayerTables.SubscribeNetTableListener(tableName, callback)
       Sets up a callback for when this playertable is changed.  The callback is of the form:
         function(tableName, changesObject, deletionsObject).
           changesObject contains the key-value pairs that were changed
@@ -142,7 +142,7 @@ function PlayerTables:PlayerTables_Connected(args)
   --print('PlayerTables_Connected')
   --PrintTable(args)
 
-  local pid = args.pid
+  local pid = args.PlayerID
   if not pid then
     return
   end
@@ -150,10 +150,9 @@ function PlayerTables:PlayerTables_Connected(args)
   local player = PlayerResource:GetPlayer(pid)
   --print('player: ', player)
 
-
-  for k,v in pairs(PlayerTables.subscriptions) do
+  for k, v in pairs(PlayerTables.subscriptions) do
     if v[pid] then
-      if player then  
+      if player then
         CustomGameEventManager:Send_ServerToPlayer(player, "pt_fu", {name=k, table=PlayerTables.tables[k]} )
       end
     end
@@ -166,7 +165,7 @@ function PlayerTables:CreateTable(tableName, tableContents, pids)
 
   if pids == true then
     pids = {}
-    for i=0,DOTA_MAX_TEAM_PLAYERS-1 do
+    for i = 0, DOTA_MAX_TEAM_PLAYERS - 1 do
       pids[#pids+1] = i
     end
   end
@@ -183,10 +182,10 @@ function PlayerTables:CreateTable(tableName, tableContents, pids)
     if type(v) == "number" then
       pid = v
     end
-    if pid >= 0 and pid < DOTA_MAX_TEAM_PLAYERS then
+    if pid >= 0 and PlayerResource:IsValidPlayerID(pid) and PlayerResource:IsValidPlayer(pid) then
       self.subscriptions[tableName][pid] = true
       local player = PlayerResource:GetPlayer(pid)
-      if player then  
+      if player then
         CustomGameEventManager:Send_ServerToPlayer(player, "pt_fu", {name=tableName, table=tableContents} )
       end
     else
@@ -201,18 +200,17 @@ function PlayerTables:DeleteTable(tableName)
     return
   end
 
-  local table = self.tables[tableName]
   local pids = self.subscriptions[tableName]
 
   for k,v in pairs(pids) do
     local player = PlayerResource:GetPlayer(k)
-    if player then  
+    if player then
       CustomGameEventManager:Send_ServerToPlayer(player, "pt_fu", {name=tableName, table=nil} )
     end
   end
 
   self.tables[tableName] = nil
-  self.subscriptions[tableName] = nil  
+  self.subscriptions[tableName] = nil
 end
 
 function PlayerTables:TableExists(tableName)
@@ -234,10 +232,10 @@ function PlayerTables:SetPlayerSubscriptions(tableName, pids)
     if type(v) == "number" then
       pid = v
     end
-    if pid >= 0 and pid < DOTA_MAX_TEAM_PLAYERS then
+    if pid >= 0 and PlayerResource:IsValidPlayerID(pid) and PlayerResource:IsValidPlayer(pid) then
       self.subscriptions[tableName][pid] = true
       local player = PlayerResource:GetPlayer(pid)
-      if player and oldPids[pid] == nil then  
+      if player and oldPids[pid] == nil then
         CustomGameEventManager:Send_ServerToPlayer(player, "pt_fu", {name=tableName, table=table} )
       end
     else
@@ -256,14 +254,14 @@ function PlayerTables:AddPlayerSubscription(tableName, pid)
   local oldPids = self.subscriptions[tableName]
 
   if not oldPids[pid] then
-    if pid >= 0 and pid < DOTA_MAX_TEAM_PLAYERS then
+    if pid >= 0 and PlayerResource:IsValidPlayerID(pid) and PlayerResource:IsValidPlayer(pid) then
       self.subscriptions[tableName][pid] = true
       local player = PlayerResource:GetPlayer(pid)
-      if player then  
+      if player then
         CustomGameEventManager:Send_ServerToPlayer(player, "pt_fu", {name=tableName, table=table} )
       end
     else
-      print("[playertables.lua] Warning: Pid value '" .. v .. "' is not an integer between [0," .. DOTA_MAX_TEAM_PLAYERS .. "].  Ignoring.")
+      print("[playertables.lua] Warning: Pid value '" .. pid .. "' is not an integer between [0," .. DOTA_MAX_TEAM_PLAYERS .. "].  Ignoring.")
     end
   end
 end
@@ -274,7 +272,6 @@ function PlayerTables:RemovePlayerSubscription(tableName, pid)
     return
   end
 
-  local table = self.tables[tableName]
   local oldPids = self.subscriptions[tableName]
   oldPids[pid] = nil
 end
@@ -318,7 +315,7 @@ function PlayerTables:DeleteTableKey(tableName, key)
     table[key] = nil
     for pid,v in pairs(pids) do
       local player = PlayerResource:GetPlayer(pid)
-      if player then  
+      if player then
         CustomGameEventManager:Send_ServerToPlayer(player, "pt_kd", {name=tableName, keys={[key]=true}} )
       end
     end
@@ -356,7 +353,7 @@ function PlayerTables:DeleteTableKeys(tableName, keys)
   if notempty then
     for pid,v in pairs(pids) do
       local player = PlayerResource:GetPlayer(pid)
-      if player then  
+      if player then
         CustomGameEventManager:Send_ServerToPlayer(player, "pt_kd", {name=tableName, keys=deletions} )
       end
     end
@@ -366,7 +363,7 @@ end
 function PlayerTables:SetTableValue(tableName, key, value)
   if value == nil then
     self:DeleteTableKey(tableName, key)
-    return 
+    return
   end
   if not self.tables[tableName] then
     print("[playertables.lua] Warning: Table '" .. tableName .. "' does not exist.")
@@ -380,7 +377,7 @@ function PlayerTables:SetTableValue(tableName, key, value)
     table[key] = value
     for pid,v in pairs(pids) do
       local player = PlayerResource:GetPlayer(pid)
-      if player then  
+      if player then
         CustomGameEventManager:Send_ServerToPlayer(player, "pt_uk", {name=tableName, changes={[key]=value}} )
       end
     end
@@ -409,7 +406,7 @@ function PlayerTables:SetTableValues(tableName, changes)
   if notempty then
     for pid,v in pairs(pids) do
       local player = PlayerResource:GetPlayer(pid)
-      if player then  
+      if player then
         CustomGameEventManager:Send_ServerToPlayer(player, "pt_uk", {name=tableName, changes=changes} )
       end
     end

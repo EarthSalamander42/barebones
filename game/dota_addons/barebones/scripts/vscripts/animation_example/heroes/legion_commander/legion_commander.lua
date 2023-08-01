@@ -7,9 +7,7 @@
 --
 --=============================================================================
 
-
-
-
+local model = model
 
 -- AsLookLayer
 model:CreateSequence(

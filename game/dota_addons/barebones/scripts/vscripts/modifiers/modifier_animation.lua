@@ -374,7 +374,7 @@ local _CODE_TO_ANIMATION_TRANSLATE = {
   [370]="windwalk",
 }
 
-function modifier_animation:OnCreated(keys) 
+function modifier_animation:OnCreated(keys)
   self.keys = keys
   if not IsServer() then
     local stack = keys.stack_count
@@ -382,7 +382,7 @@ function modifier_animation:OnCreated(keys)
     local rate = bit.rshift(bit.band(stack, 0x7F800), 11)
     local rest = bit.rshift(bit.band(stack, 0xFFF80000), 19)
     self.activity = activity
-    self.rate = rate / 20 
+    self.rate = rate / 20
     self.rest = rest
     --print(self.activity)
     --print(self.rate)
@@ -402,38 +402,36 @@ function modifier_animation:IsHidden()
   return true
 end
 
-function modifier_animation:IsDebuff() 
+function modifier_animation:IsDebuff()
   return false
 end
 
-function modifier_animation:IsPurgable() 
+function modifier_animation:IsPurgable()
   return false
 end
 
-function modifier_animation:DeclareFunctions() 
-  local funcs = {
+function modifier_animation:DeclareFunctions()
+  return {
     MODIFIER_PROPERTY_OVERRIDE_ANIMATION,
     MODIFIER_PROPERTY_OVERRIDE_ANIMATION_RATE,
     MODIFIER_PROPERTY_OVERRIDE_ANIMATION_WEIGHT,
     MODIFIER_PROPERTY_TRANSLATE_ACTIVITY_MODIFIERS,
   }
- 
-  return funcs
 end
 
-function modifier_animation:GetOverrideAnimation(...)
+function modifier_animation:GetOverrideAnimation()
   return self.activity
 end
 
-function modifier_animation:GetOverrideAnimationRate(...)
+function modifier_animation:GetOverrideAnimationRate()
   return self.rate
 end
 
-function modifier_animation:GetOverrideAnimationWeight(...)
+function modifier_animation:GetOverrideAnimationWeight()
   return 1
 end
 
-function modifier_animation:GetActivityTranslationModifiers(...)
+function modifier_animation:GetActivityTranslationModifiers()
   --print('MA: ', self.translate, IsServer())
   return self.translate or 0
 end

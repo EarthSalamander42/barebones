@@ -159,7 +159,7 @@ function CDOTA_BaseNPC:IsRoshan()
 	if self:IsAncient() and self:GetUnitName() == "npc_dota_roshan" then
 		return true
 	end
-	
+
 	return false
 end
 
@@ -168,7 +168,7 @@ function CBaseEntity:IsFountain()
 	if self:GetName() == "ent_dota_fountain_bad" or self:GetName() == "ent_dota_fountain_good" then
 		return true
 	end
-	
+
 	return false
 end
 
@@ -180,4 +180,12 @@ function SendErrorMessage(pID, string)
     Notifications:Bottom(pID, {text=string, style={color='#E62020'}, duration=2})
   end
   EmitSoundOnClient("General.Cancel", PlayerResource:GetPlayer(pID))
+end
+
+function VectorDistanceSq(v1, v2)
+  return (v1.x - v2.x) * (v1.x - v2.x) + (v1.y - v2.y) * (v1.y - v2.y) + (v1.z - v2.z) * (v1.z - v2.z)
+end
+
+function VectorDistance(v1, v2)
+  return math.sqrt(VectorDistanceSq(v1, v2))
 end
