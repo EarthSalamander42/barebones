@@ -25,9 +25,11 @@ function Tormentors:OnNPCSpawned(keys)
 			-- hide the unit
 			spawnedUnit:AddNoDraw()
 
-			-- move the unit to a far away location. Let's not move both at the same location, imagine if one of them receives damage somehow and reflect to each others till eternity.. Could be fun, or instantly crash the game
+			-- move the unit to a far away location.
 			local position = Vector(20000, 0, 0) and spawnedUnit:GetTeam() == DOTA_TEAM_GOODGUYS or Vector(-20000, 0, 0)
 			spawnedUnit:SetAbsOrigin(position)
+
+			-- removing abilities is required to remove lingering effects
 			spawnedUnit:RemoveAbility("miniboss_unyielding_shield")
 			spawnedUnit:RemoveAbility("miniboss_reflect")
 
