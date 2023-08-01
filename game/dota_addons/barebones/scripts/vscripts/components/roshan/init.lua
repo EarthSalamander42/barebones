@@ -7,7 +7,7 @@ if not Roshan then
 
 	require("components/roshan/events")
 
-	Roshan.bonusMinuteBuff = 1200.0 -- 20 minutes
+	Roshan.bonusMinuteBuff = 0 -- Starting strength of Roshan (e.g. if put 1200 Roshan's starting stats are the same as he would be at 20 min)
 
 	ListenToGameEvent('npc_spawned', Dynamic_Wrap(Roshan, 'OnNPCSpawned'), Roshan)
 end

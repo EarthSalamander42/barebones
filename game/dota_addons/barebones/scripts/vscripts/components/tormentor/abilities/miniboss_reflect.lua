@@ -2,11 +2,17 @@ LinkLuaModifier("modifier_miniboss_reflect_custom", "components/tormentor/abilit
 
 miniboss_reflect_custom = miniboss_reflect_custom or class({})
 
-function miniboss_reflect_custom:IsInnateAbility() return true end
+function miniboss_reflect_custom:Spawn()
+	if IsServer() then
+		self:SetLevel(1)
+	end
+end
 
 function miniboss_reflect_custom:GetIntrinsicModifierName()
 	return "modifier_miniboss_reflect_custom"
 end
+
+---------------------------------------------------------------------------------------------------
 
 modifier_miniboss_reflect_custom = modifier_miniboss_reflect_custom or class({})
 
@@ -75,28 +81,73 @@ function modifier_miniboss_reflect_custom:OnTakeDamage(keys)
 
 	local damage = keys.original_damage
 	local damageType = keys.damage_type
+	local damageFlags = keys.damage_flags
+	local attacker = keys.attacker
 
 	if keys.unit ~= self.parent then return end
+	
+	-- Ignore damage that has the no-reflect flag
+	if bit.band(damageFlags, DOTA_DAMAGE_FLAG_REFLECTION) > 0 then
+		return
+	end
 
-	local enemies = FindUnitsInRadius(self.parent:GetTeamNumber(), self.parent:GetAbsOrigin(), nil, self.radius, DOTA_UNIT_TARGET_TEAM_ENEMY, DOTA_UNIT_TARGET_HERO, DOTA_DAMAGE_FLAG_REFLECTION + DOTA_DAMAGE_FLAG_NO_SPELL_LIFESTEAL + DOTA_DAMAGE_FLAG_NO_SPELL_AMPLIFICATION, FIND_ANY_ORDER, false)
+	-- Ignore damage that has the no-spell-lifesteal flag
+	if bit.band(damageFlags, DOTA_DAMAGE_FLAG_NO_SPELL_LIFESTEAL) > 0 then
+		return
+	end
 
-	if #enemies == 0 then return end
+	-- Ignore damage that has the no-spell-amplification flag
+	if bit.band(damageFlags, DOTA_DAMAGE_FLAG_NO_SPELL_AMPLIFICATION) > 0 then
+		return
+	end
 
+	local enemies = FindUnitsInRadius(
+		self.parent:GetTeamNumber(),
+		self.parent:GetAbsOrigin(),
+		nil,
+		self.radius,
+		DOTA_UNIT_TARGET_TEAM_ENEMY,
+		DOTA_UNIT_TARGET_HERO,
+		DOTA_UNIT_TARGET_FLAG_MAGIC_IMMUNE_ENEMIES,
+		FIND_ANY_ORDER,
+		false
+	)
+
+	-- Parts of damage table that are always the same
+	local damageTable = {
+		attacker = self.parent,
+		damage_type = damageType,
+		ability = self.ability,
+	}
+
+	if #enemies == 0 then
+		-- Always affect the attacker, doesn't matter where it is even if there are no enemies around
+		damageTable.victim = attacker
+		damageTable.damage = damage * self.reflection / 100
+
+		ApplyDamage(damageTable)
+
+		local pfx = ParticleManager:CreateParticle(self.pfx_name[self.parent.tormentorTeam].reflect, PATTACH_ABSORIGIN_FOLLOW, self.parent)
+		ParticleManager:SetParticleControl(pfx, 0, self.parent:GetAbsOrigin())
+		ParticleManager:SetParticleControlEnt(pfx, 1, attacker, PATTACH_POINT_FOLLOW, "attach_hitloc", attacker:GetAbsOrigin(), true)
+		-- ParticleManager:SetParticleControl(pfx, 1, attacker:GetAbsOrigin())
+		ParticleManager:ReleaseParticleIndex(pfx)
+
+		-- EmitSoundOnClient("Miniboss.Tormenter.Reflect", attacker)
+		attacker:EmitSound("Miniboss.Tormenter.Reflect")
+		return
+	end
+	
+	-- Distribute the damage among the present units
+	local reflectedDamage = (damage * self.reflection / 100) / #enemies
 	for _, enemy in pairs(enemies) do
-		if enemy and not enemy:IsNull() and IsValidEntity(enemy) and enemy:IsAlive() then
-			local reflectedDamage = (damage * self.reflection / 100) / #enemies
+		if enemy and not enemy:IsNull() and IsValidEntity(enemy) and enemy:IsAlive() and enemy ~= attacker then
+			damageTable.victim = enemy
+			damageTable.damage = reflectedDamage
 
 			if enemy:IsIllusion() then
-				reflectedDamage = reflectedDamage * self.illusion_damage_pct / 100
+				damageTable.damage = reflectedDamage * self.illusion_damage_pct / 100
 			end
-
-			local damageTable = {
-				victim = enemy,
-				attacker = self.parent,
-				damage = reflectedDamage,
-				damage_type = damageType,
-				ability = self.ability,
-			}
 
 			ApplyDamage(damageTable)
 
@@ -104,11 +155,31 @@ function modifier_miniboss_reflect_custom:OnTakeDamage(keys)
 			ParticleManager:SetParticleControl(pfx, 0, self.parent:GetAbsOrigin())
 			ParticleManager:SetParticleControlEnt(pfx, 1, enemy, PATTACH_POINT_FOLLOW, "attach_hitloc", enemy:GetAbsOrigin(), true)
 			-- ParticleManager:SetParticleControl(pfx, 1, enemy:GetAbsOrigin())
+			ParticleManager:ReleaseParticleIndex(pfx)
 
 			-- EmitSoundOnClient("Miniboss.Tormenter.Reflect", enemy)
 			enemy:EmitSound("Miniboss.Tormenter.Reflect")
 		end
 	end
+
+	-- Always affect the attacker, doesn't matter where it is
+	damageTable.victim = attacker
+	damageTable.damage = reflectedDamage
+
+	if attacker:IsIllusion() then
+		damageTable.damage = reflectedDamage * self.illusion_damage_pct / 100
+	end
+
+	ApplyDamage(damageTable)
+
+	local pfx = ParticleManager:CreateParticle(self.pfx_name[self.parent.tormentorTeam].reflect, PATTACH_ABSORIGIN_FOLLOW, self.parent)
+	ParticleManager:SetParticleControl(pfx, 0, self.parent:GetAbsOrigin())
+	ParticleManager:SetParticleControlEnt(pfx, 1, attacker, PATTACH_POINT_FOLLOW, "attach_hitloc", attacker:GetAbsOrigin(), true)
+	-- ParticleManager:SetParticleControl(pfx, 1, attacker:GetAbsOrigin())
+	ParticleManager:ReleaseParticleIndex(pfx)
+
+	-- EmitSoundOnClient("Miniboss.Tormenter.Reflect", attacker)
+	attacker:EmitSound("Miniboss.Tormenter.Reflect")
 end
 
 function modifier_miniboss_reflect_custom:OnTooltip()

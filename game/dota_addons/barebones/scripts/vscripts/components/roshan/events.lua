@@ -1,5 +1,11 @@
 function Roshan:OnNPCSpawned(keys)
-	local spawnedUnit = EntIndexToHScript(keys.entindex)
+	local spawnedUnit
+	if keys.entindex then
+		spawnedUnit = EntIndexToHScript(keys.entindex)
+	else
+		print("npc_spawned event doesn't have entindex key")
+		return
+	end
 
 	if spawnedUnit then
 		if spawnedUnit:GetClassname() == "npc_dota_roshan" then

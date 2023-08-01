@@ -83,11 +83,11 @@ DISABLE_ANNOUNCER = false          -- Should we disable the announcer from worki
 FORCE_PICKED_HERO = nil            -- What hero should we force all players to spawn as? (e.g. "npc_dota_hero_axe").  Use nil to allow players to pick their own hero.
 -- This will not work if "EnablePickRules" is "1" in 'addoninfo.txt'!
 
-ADD_ITEM_TO_HERO_ON_SPAWN = false -- Add an example item to the picked hero when he spawns?
+ADD_ITEM_TO_HERO_ON_SPAWN = false  -- Add an example item to the picked hero when he spawns?
 
 -- NOTE: use FIXED_RESPAWN_TIME if you want the same respawn time on every level.
-MAX_RESPAWN_TIME = 125           -- Default Dota doesn't have a limit (it can go above 125). Fast game modes should have 20 seconds.
-USE_CUSTOM_RESPAWN_TIMES = false -- Should we use custom respawn times (true) or dota default (false)?
+MAX_RESPAWN_TIME = 125             -- Default Dota doesn't have a limit (it can go above 125). Fast game modes should have 20 seconds.
+USE_CUSTOM_RESPAWN_TIMES = false   -- Should we use custom respawn times (true) or dota default (false)?
 
 -- Fill this table with respawn times on each level if USE_CUSTOM_RESPAWN_TIMES is true.
 CUSTOM_RESPAWN_TIME = {}

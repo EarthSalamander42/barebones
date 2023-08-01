@@ -2,13 +2,17 @@ LinkLuaModifier("modifier_roshan_inherent_buffs_custom", "components/roshan/abil
 
 roshan_inherent_buffs_custom = roshan_inherent_buffs_custom or class({})
 
-function roshan_inherent_buffs_custom:IsInnateAbility() return true end
-
-function roshan_inherent_buffs_custom:OnUpgrade()
-	if not IsServer() then return end
-
-	self:GetCaster():AddNewModifier(self:GetCaster(), self, "modifier_roshan_inherent_buffs_custom", {})
+function roshan_inherent_buffs_custom:Spawn()
+	if IsServer() then
+		self:SetLevel(1)
+	end
 end
+
+function roshan_inherent_buffs_custom:GetIntrinsicModifierName()
+	return "modifier_roshan_inherent_buffs_custom"
+end
+
+---------------------------------------------------------------------------------------------------
 
 modifier_roshan_inherent_buffs_custom = modifier_roshan_inherent_buffs_custom or class({})
 
@@ -27,21 +31,27 @@ function modifier_roshan_inherent_buffs_custom:DeclareFunctions()
 end
 
 function modifier_roshan_inherent_buffs_custom:OnCreated()
+	self.interval = 60
 	self.bonusDamage = 0
 	self.bonusArmor = 0
+	self.bonusHealth = 130
+	self.bonusAttackSpeed = 100
 
 	self.parent = self:GetParent()
 	self.ability = self:GetAbility()
 
-	self.interval = self.ability:GetSpecialValueFor("interval")
-	self.bonusDamage = self.ability:GetSpecialValueFor("bonus_damage")
-	self.bonusArmor = self.ability:GetSpecialValueFor("bonus_armor")
+	if not self.ability:IsNull() then
+		self.interval = self.ability:GetSpecialValueFor("interval")
+		self.bonusDamage = self.ability:GetSpecialValueFor("bonus_damage")
+		self.bonusArmor = self.ability:GetSpecialValueFor("bonus_armor")
+		self.bonusHealth = self.ability:GetSpecialValueFor("bonus_health")
+		self.bonusAttackSpeed = self.ability:GetSpecialValueFor("bonus_base_attack_speed")
+	end
 
 	if not IsServer() then return end
 
 	self.previousStack = 0
 	self.baseMaxHealth = self.parent:GetMaxHealth()
-	self.bonusHealth = self.ability:GetSpecialValueFor("bonus_health") or 130
 
 	self:SetStackCount(0)
 	self:StartIntervalThink(1.0)
@@ -88,5 +98,5 @@ end
 
 -- Not sure why Valve did this in ability instead of unit file, but it's here so we have to do it too
 function modifier_roshan_inherent_buffs_custom:GetModifierAttackSpeedBonus_Constant()
-	return 100
+	return self.bonusAttackSpeed
 end

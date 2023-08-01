@@ -2,11 +2,17 @@ LinkLuaModifier("modifier_miniboss_unyielding_shield_custom", "components/tormen
 
 miniboss_unyielding_shield_custom = miniboss_unyielding_shield_custom or class({})
 
-function miniboss_unyielding_shield_custom:IsInnateAbility() return true end
+function miniboss_unyielding_shield_custom:Spawn()
+	if IsServer() then
+		self:SetLevel(1)
+	end
+end
 
 function miniboss_unyielding_shield_custom:GetIntrinsicModifierName()
 	return "modifier_miniboss_unyielding_shield_custom"
 end
+
+---------------------------------------------------------------------------------------------------
 
 modifier_miniboss_unyielding_shield_custom = modifier_miniboss_unyielding_shield_custom or class({})
 
